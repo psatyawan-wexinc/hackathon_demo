@@ -1,0 +1,39 @@
+{
+  "name": "mcp-integration",
+  "version": "1.0.0",
+  "description": "MCP server integration with secure credential management for Claude Code",
+  "main": "scripts/validate-creds.js",
+  "scripts": {
+    "setup": "cd scripts && ./setup-mcp.sh",
+    "validate": "node scripts/validate-creds.js",
+    "start": "cd scripts && ./launch-mcps.sh",
+    "stop": "cd scripts && ./stop-mcps.sh",
+    "configure": "cd scripts && ./configure-claude-code.sh",
+    "health": "node scripts/health-check.js",
+    "install-deps": "npm install -g @playwright/mcp mcp-knowledge-graph @movibe/memory-bank-mcp perplexity-ask-mcp"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol", 
+    "claude-code",
+    "playwright",
+    "perplexity",
+    "knowledge-graph",
+    "memory-bank"
+  ],
+  "author": "MCP Integration Project",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {},
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "bugs": {
+    "url": "./issues"
+  },
+  "homepage": "./README.md"
+}

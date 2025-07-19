@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "perplexity-ask": {
+      "command": "npx",
+      "args": ["-y", "server-perplexity-ask"],
+      "env": {
+        "PERPLEXITY_API_KEY": "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"
+      }
+    }
+  }
+}

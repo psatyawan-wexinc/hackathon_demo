@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-07-18T19:29:08.353Z",
+  "status": "PASS",
+  "errors": [],
+  "warnings": [],
+  "validatedCredentials": [
+    "PERPLEXITY_API_KEY",
+    "GITHUB_TOKEN",
+    "KNOWLEDGE_GRAPH_MEMORY_PATH",
+    "MEMORY_BANK_PATH",
+    "CUSTOM_MCP_ENDPOINT",
+    "MCP_TIMEOUT",
+    "MCP_AUTO_APPROVE",
+    "ENCRYPT_CREDENTIALS"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ],
+      "env": {}
+    },
+    "knowledge-graph": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-knowledge-graph",
+        "--memory-path",
+        "./mcp-integration/config/credentials/knowledge_graph_memory.jsonl"
+      ],
+      "env": {}
+    },
+    "memory-bank": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@movibe/memory-bank-mcp"
+      ],
+      "env": {
+        "MEMORY_BANK_PATH": "/workspaces/hackathon_training/Context-Engineering-Intro/mcp-integration/memory-bank"
+      }
+    },
+    "perplexity-ask": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "server-perplexity-ask"
+      ],
+      "env": {
+        "PERPLEXITY_API_KEY": "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"
+      }
+    }
+  }
+}

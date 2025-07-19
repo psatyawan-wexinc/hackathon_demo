@@ -1,0 +1,28 @@
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Credential files
+config/credentials/*
+!config/credentials/.gitkeep
+
+# API keys and secrets
+*.key
+*.secret
+*_credentials.json
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/

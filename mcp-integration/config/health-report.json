@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-07-18T19:30:37.839Z",
+  "overall": "UNHEALTHY",
+  "servers": {
+    "processes": {
+      "Process 37890": {
+        "success": false,
+        "pid": "37890",
+        "status": "stopped"
+      },
+      "Process 37891": {
+        "success": false,
+        "pid": "37891",
+        "status": "stopped"
+      },
+      "Process 37892": {
+        "success": true,
+        "pid": "37892",
+        "status": "running"
+      },
+      "Process 37893": {
+        "success": false,
+        "pid": "37893",
+        "status": "stopped"
+      }
+    },
+    "paths": {
+      "Knowledge Graph Memory": {
+        "success": true,
+        "path": "/workspaces/hackathon_training/Context-Engineering-Intro/mcp-integration/config/credentials/knowledge_graph_memory.jsonl",
+        "exists": true,
+        "type": "file",
+        "size": 0,
+        "modified": "2025-07-18T18:50:17.706Z"
+      },
+      "Memory Bank": {
+        "success": true,
+        "path": "/workspaces/hackathon_training/Context-Engineering-Intro/mcp-integration/config/credentials/memory_bank",
+        "exists": true,
+        "type": "directory",
+        "size": 4096,
+        "modified": "2025-07-18T18:50:17.707Z"
+      }
+    },
+    "perplexity": {
+      "success": false,
+      "status": 400,
+      "response": "{\"error\":{\"message\":\"Invalid model 'llama-3.1-sonar-small-128k-online'. Permitted models can be found in the documentation at https://docs.perplexity.ai/guides/model-cards.\",\"type\":\"invalid_model\",\"co"
+    }
+  }
+}

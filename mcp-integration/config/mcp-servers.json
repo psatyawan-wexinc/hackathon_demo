@@ -1,0 +1,74 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "name": "Playwright MCP",
+      "description": "Browser automation capabilities using Playwright",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"],
+      "env": {},
+      "autoStart": true,
+      "autoApprove": ["navigate", "click", "type", "screenshot"]
+    },
+    "perplexity-ask": {
+      "name": "Perplexity Sonar MCP",
+      "description": "Real-time web search through Sonar API",
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "server-perplexity-ask"
+      ],
+      "env": {
+        "PERPLEXITY_API_KEY": "YOUR_API_KEY_HERE"
+      },
+      "autoStart": true,
+      "autoApprove": ["perplexity_search"],
+      "healthCheck": null
+    },
+    "knowledge-graph": {
+      "name": "Knowledge Graph MCP",
+      "description": "Persistent memory through local knowledge graph",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "mcp-knowledge-graph", "--memory-path", "${KNOWLEDGE_GRAPH_MEMORY_PATH}"],
+      "env": {},
+      "autoStart": true,
+      "autoApprove": [
+        "create_entities",
+        "create_relations", 
+        "create_observations",
+        "read_graph",
+        "search_nodes",
+        "open_nodes"
+      ]
+    },
+    "memory-bank": {
+      "name": "Memory Bank MCP",
+      "description": "Cross-session context preservation",
+      "transport": "stdio", 
+      "command": "npx",
+      "args": ["@movibe/memory-bank-mcp"],
+      "env": {
+        "MEMORY_BANK_PATH": "${MEMORY_BANK_PATH}"
+      },
+      "autoStart": true,
+      "autoApprove": [
+        "initialize_memory_bank",
+        "find_memory_banks",
+        "read_file",
+        "write_file",
+        "update_progress",
+        "log_decision"
+      ]
+    }
+  },
+  "settings": {
+    "timeout": "${MCP_TIMEOUT:-30000}",
+    "retryAttempts": 3,
+    "retryDelay": 2000,
+    "healthCheckInterval": 30000,
+    "autoStartOnProjectOpen": true,
+    "fallbackOnFailure": true
+  }
+}

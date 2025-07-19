@@ -37,6 +37,19 @@
 - **Use Memory Bank MCP** to maintain context across sessions - read active-context at start, update progress at end.
 - **Use venv_linux** for all Python commands.
 
+### 📁 Use-Case Project Location - MANDATORY
+- **ALL use-case projects MUST be created within `/workspaces/hackathon_demo/use-case`** folder.
+- **NEVER create project files outside this directory** - this includes:
+  - Source code (`src/`, `backend/`, `frontend/`)
+  - Test files (`tests/`, `test/`, `__tests__/`)
+  - Configuration files (`package.json`, `requirements.txt`, etc.)
+  - Documentation (`README.md`, `docs/`)
+  - Build artifacts (`dist/`, `build/`, `.next/`)
+  - Examples and demos (`examples/`, `demo/`)
+  - Any other project-related files or folders
+- **Full project tree structure** must be contained within `/workspaces/hackathon_demo/use-case`
+- **Absolute path enforcement**: Always use the full path when creating directories or files
+
 ### 🧹 Preventing Context Rot
 - **MCP-Enhanced Context Management**: 
   - **Session Start**: Read Memory Bank active-context, check Knowledge Graph for relevant entities

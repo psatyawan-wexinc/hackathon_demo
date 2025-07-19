@@ -1,212 +1,825 @@
-name: "Base PRP Template v2 - Context-Rich with Validation Loops"
-description: |
+---
+name: "LangGraph HSA Contribution Planner PRP"
+description: This template provides a production-ready implementation blueprint for building an HSA Contribution Planner using LangGraph's multi-agent orchestration framework with proven conversational AI patterns.
+---
 
 ## Purpose
-Template optimized for AI agents to implement features with sufficient context and self-validation capabilities to achieve working code through iterative refinement.
+
+Template optimized for AI agents to implement a production-ready HSA (Health Savings Account) contribution planning system using LangGraph's multi-agent architecture, with conversational UI, IRS compliance logic, and enterprise-grade error handling.
 
 ## Core Principles
-1. **Context is King**: Include ALL necessary documentation, examples, and caveats
-2. **Validation Loops**: Provide executable tests/lints the AI can run and fix
-3. **Information Dense**: Use keywords and patterns from the codebase
-4. **Progressive Success**: Start simple, validate, then enhance
-5. **Global rules**: Be sure to follow all rules in CLAUDE.md
+
+1. **Agent Orchestration First**: Design clear agent boundaries with well-defined inputs, outputs, and state transitions
+2. **IRS Compliance Built-In**: Embed 2025 contribution limits, proration rules, and catch-up provisions in agent logic
+3. **Conversation Flow Management**: Implement robust state persistence and error recovery for multi-turn conversations
+4. **Test-Driven Agent Development**: Build comprehensive test suites for individual agents and orchestration flows
+5. **User Experience Focus**: Provide clear, actionable guidance with visual feedback throughout the planning process
 
 ---
 
 ## Goal
-[What needs to be built - be specific about the end state and desires]
+
+Build a production-ready HSA Contribution Planner with:
+
+- **Three specialized LangGraph agents**: UserInputAgent, LimitCalcAgent, and PlannerAgent working in orchestrated sequence
+- **Conversational interface** that guides users through HSA planning with contextual prompts
+- **IRS-compliant calculations** including 2025 limits, catch-up contributions, and proration logic
+- **Visual progress tracking** with color-coded status indicators and summary cards
+- **Enterprise features**: State persistence, error recovery, audit logging, and performance monitoring
 
 ## Why
-- [Business value and user impact]
-- [Integration with existing features]
-- [Problems this solves and for whom]
+
+- **Maximize Tax Benefits**: Help users optimize HSA contributions to reduce taxable income
+- **Prevent Over-contributions**: Avoid IRS penalties through accurate limit calculations
+- **Simplify Complex Rules**: Navigate proration, catch-up, and mid-year changes automatically
+- **Improve Financial Wellness**: Enable better healthcare savings planning
+- **Reduce HR Burden**: Automate common HSA questions and calculations
 
 ## What
-[User-visible behavior and technical requirements]
+
+### LangGraph Agent System
+
+**Core Agents:**
+
+1. **UserInputAgent**
+   - Manages conversational flow for data collection
+   - Validates user inputs in real-time
+   - Handles re-prompting for corrections
+   - Maintains conversation context
+
+2. **LimitCalcAgent**
+   - Applies 2025 IRS contribution limits
+   - Calculates catch-up eligibility
+   - Handles proration for mid-year changes
+   - Validates against IRS Publication 969 rules
+
+3. **PlannerAgent**
+   - Generates per-paycheck recommendations
+   - Creates contribution schedules
+   - Provides actionable guidance
+   - Handles edge cases gracefully
+
+**System Features:**
+
+- **State Management**: Persistent conversation state across agent handoffs
+- **Error Recovery**: Graceful handling of invalid inputs and calculation errors
+- **Audit Trail**: Complete logging of user interactions and calculations
+- **Performance Monitoring**: Agent response time and success rate tracking
+- **Security**: PII encryption and secure session management
 
 ### Success Criteria
-- [ ] [Specific measurable outcomes]
+
+- [ ] All three agents successfully initialized and registered in LangGraph
+- [ ] Agent handoffs work seamlessly with proper state transfer
+- [ ] User inputs validated according to IRS rules
+- [ ] Calculations match manual verification for all test scenarios
+- [ ] Error messages provide clear, actionable guidance
+- [ ] Conversation state persists across session interruptions
+- [ ] UI displays real-time agent status and results
+- [ ] Performance meets < 2 second response time per agent
+- [ ] All unit and integration tests pass
+- [ ] Load testing confirms 1000+ concurrent users supported
 
 ## All Needed Context
 
-### Documentation & References (list all context needed to implement the feature)
+### Documentation & References (MUST READ)
+
 ```yaml
-# MUST READ - Include these in your context window
-- url: [Official API docs URL]
-  why: [Specific sections/methods you'll need]
-  
-- file: [path/to/example.py]
-  why: [Pattern to follow, gotchas to avoid]
-  
-- doc: [Library documentation URL] 
-  section: [Specific section about common pitfalls]
-  critical: [Key insight that prevents common errors]
+# CORE LANGGRAPH DOCUMENTATION
+- url: https://langchain-ai.github.io/langgraph/
+  why: Official LangGraph documentation for multi-agent orchestration patterns
 
-- docfile: [PRPs/ai_docs/file.md]
-  why: [docs that the user has pasted in to the project]
+- url: https://langchain-ai.github.io/langgraph/tutorials/
+  why: Step-by-step tutorials for building agent systems - START HERE
 
+- url: https://langchain-ai.github.io/langgraph/how-tos/
+  why: Practical guides for state management, persistence, and error handling
+
+# AGENT DESIGN PATTERNS
+- url: https://langchain-ai.github.io/langgraph/concepts/
+  why: Core concepts including nodes, edges, state, and checkpointing
+
+- url: https://langchain-ai.github.io/langgraph/reference/
+  why: API reference for StateGraph, Node, and Edge implementations
+
+# PROJECT-SPECIFIC DOCUMENTATION
+- file: /workspaces/hackathon_demo/PLANNING.md
+  why: Complete project specifications with agent details and IRS rules
+
+- file: examples/planner_flow.json
+  why: Expected agent interaction sequences and state transitions
+
+# IRS REGULATIONS
+- url: https://www.irs.gov/pub/irs-drop/rp-24-25.pdf
+  why: Official 2025 HSA contribution limits and rules
+
+- url: https://www.irs.gov/publications/p969
+  why: IRS Publication 969 - HSA rules including proration logic
+
+# FRONTEND INTEGRATION
+- url: https://streamlit.io/
+  why: Potential UI framework for conversational interface
+
+- url: https://gradio.app/
+  why: Alternative UI framework with chat components
 ```
 
-### Current Codebase tree (run `tree` in the root of the project) to get an overview of the codebase
+### Current Codebase Tree (Initial state)
+
 ```bash
-
+/workspaces/hackathon_demo/
+├── PLANNING.md                 # Project specifications ← PRIMARY REFERENCE
+├── PRPs/
+│   └── templates/
+│       └── prp_base.md        # This template
+├── examples/
+│   ├── planner_flow.json      # Agent interaction examples
+│   └── ui_mockup.png          # UI design reference
+└── README.md                  # Project overview
 ```
 
-### Desired Codebase tree with files to be added and responsibility of file
+### Desired Codebase Tree (Target structure)
+
 ```bash
-
+/workspaces/hackathon_demo/
+├── src/
+│   ├── __init__.py
+│   ├── agents/
+│   │   ├── __init__.py
+│   │   ├── user_input_agent.py    # Conversation management
+│   │   ├── limit_calc_agent.py    # IRS limit calculations
+│   │   └── planner_agent.py       # Recommendation engine
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── user_profile.py        # Pydantic models for user data
+│   │   ├── contribution_limits.py # IRS limit models
+│   │   └── contribution_plan.py   # Output models
+│   ├── orchestration/
+│   │   ├── __init__.py
+│   │   ├── graph_builder.py       # LangGraph setup
+│   │   ├── state_manager.py       # Conversation state
+│   │   └── error_handlers.py      # Recovery strategies
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── irs_rules.py           # IRS calculation logic
+│   │   ├── validators.py          # Input validation
+│   │   └── formatters.py          # Output formatting
+│   └── ui/
+│       ├── __init__.py
+│       ├── app.py                 # Streamlit/Gradio app
+│       └── components.py          # UI components
+├── tests/
+│   ├── unit/
+│   │   ├── test_user_input_agent.py
+│   │   ├── test_limit_calc_agent.py
+│   │   ├── test_planner_agent.py
+│   │   └── test_irs_rules.py
+│   ├── integration/
+│   │   ├── test_agent_handoffs.py
+│   │   └── test_conversation_flow.py
+│   └── e2e/
+│       └── test_full_planning_flow.py
+├── config/
+│   ├── agent_config.yaml          # Agent parameters
+│   └── irs_limits_2025.yaml       # IRS contribution limits
+├── scripts/
+│   ├── run_local.py               # Local development
+│   └── deploy.py                  # Deployment script
+├── requirements.txt               # Python dependencies
+├── pyproject.toml                # Project configuration
+└── .env.example                  # Environment variables
 ```
 
-### Known Gotchas of our codebase & Library Quirks
+### Known Gotchas & Critical LangGraph Patterns
+
 ```python
-# CRITICAL: [Library name] requires [specific setup]
-# Example: FastAPI requires async functions for endpoints
-# Example: This ORM doesn't support batch inserts over 1000 records
-# Example: We use pydantic v2 and  
+# CRITICAL: LangGraph State Management Patterns
+
+# 1. ALWAYS define clear state schemas
+from typing import TypedDict, List
+from langgraph.graph import StateGraph
+
+class ConversationState(TypedDict):
+    user_profile: dict
+    contribution_limits: dict
+    contribution_plan: dict
+    conversation_history: List[dict]
+    current_agent: str
+    error_state: dict
+
+# 2. ALWAYS implement proper agent handoffs
+def create_hsa_graph():
+    graph = StateGraph(ConversationState)
+    
+    # Add nodes for each agent
+    graph.add_node("user_input", user_input_agent)
+    graph.add_node("limit_calc", limit_calc_agent)
+    graph.add_node("planner", planner_agent)
+    
+    # Define edges with conditional logic
+    graph.add_edge("user_input", "limit_calc")
+    graph.add_edge("limit_calc", "planner")
+    
+    # Set entry point
+    graph.set_entry_point("user_input")
+    
+    return graph.compile()
+
+# 3. ALWAYS handle state persistence
+from langgraph.checkpoint import MemorySaver
+
+memory = MemorySaver()
+graph = create_hsa_graph()
+config = {"configurable": {"thread_id": "user-session-123"}}
+
+# 4. ALWAYS validate state transitions
+def user_input_agent(state: ConversationState):
+    # Validate required fields before proceeding
+    required_fields = ["coverage_type", "ytd_contribution", "remaining_pay_periods"]
+    
+    for field in required_fields:
+        if field not in state["user_profile"]:
+            return {"error_state": {"missing_field": field}}
+    
+    return {"current_agent": "limit_calc"}
+
+# 5. ALWAYS implement error recovery
+def limit_calc_agent(state: ConversationState):
+    try:
+        # Calculation logic
+        limits = calculate_limits(state["user_profile"])
+        return {"contribution_limits": limits, "current_agent": "planner"}
+    except Exception as e:
+        return {
+            "error_state": {"error": str(e), "recovery_action": "retry"},
+            "current_agent": "user_input"  # Fall back to data collection
+        }
 ```
 
 ## Implementation Blueprint
 
-### Data models and structure
+### Data Models & Types
 
-Create the core data models, we ensure type safety and consistency.
 ```python
-Examples: 
- - orm models
- - pydantic models
- - pydantic schemas
- - pydantic validators
+# User Profile Models
+from pydantic import BaseModel, Field, validator
+from typing import Literal, Optional
+from datetime import date
 
+class UserProfile(BaseModel):
+    coverage_type: Literal["self-only", "family"]
+    ytd_contribution: float = Field(ge=0, description="Year-to-date HSA contributions")
+    is_55_plus: bool = Field(default=False, description="Eligible for catch-up contributions")
+    remaining_pay_periods: int = Field(ge=0, le=52, description="Pay periods left in year")
+    pay_frequency: Literal["weekly", "biweekly", "semi-monthly", "monthly"]
+    employer_contribution: Optional[float] = Field(default=0, ge=0)
+    plan_start_date: Optional[date] = None
+    
+    @validator('ytd_contribution')
+    def validate_contribution(cls, v):
+        if v > 10000:  # Reasonable upper bound
+            raise ValueError("YTD contribution seems unusually high")
+        return v
+
+# IRS Limit Models
+class ContributionLimits(BaseModel):
+    base_limit: float
+    catch_up_amount: float = 0
+    total_allowed: float
+    remaining_contribution: float
+    prorated: bool = False
+    proration_months: Optional[int] = None
+    warnings: List[str] = []
+
+# Contribution Plan Models  
+class PayPeriodContribution(BaseModel):
+    period_number: int
+    contribution_amount: float
+    cumulative_total: float
+    pay_date: Optional[date] = None
+
+class ContributionPlan(BaseModel):
+    per_paycheck_amount: float
+    total_remaining: float
+    contribution_schedule: List[PayPeriodContribution]
+    recommendations: List[str]
+    status: Literal["on-track", "at-risk", "over-limit"]
+    
+# Agent Message Models
+class AgentMessage(BaseModel):
+    agent_name: str
+    message_type: Literal["question", "info", "error", "result"]
+    content: str
+    options: Optional[List[str]] = None
+    metadata: dict = {}
 ```
 
-### list of tasks to be completed to fullfill the PRP in the order they should be completed
+### List of Tasks (Complete in order)
 
 ```yaml
-Task 1:
-MODIFY src/existing_module.py:
-  - FIND pattern: "class OldImplementation"
-  - INJECT after line containing "def __init__"
-  - PRESERVE existing method signatures
+Task 1 - Project Setup:
+  Initialize Python Project:
+    - CREATE virtual environment: python -m venv venv_linux
+    - ACTIVATE environment: source venv_linux/bin/activate
+    - CREATE requirements.txt with core dependencies:
+      - langgraph>=0.2.0
+      - langchain>=0.2.0
+      - pydantic>=2.0
+      - streamlit>=1.28.0 (or gradio>=4.0)
+      - pytest>=7.0
+      - python-dotenv
+    - INSTALL dependencies: pip install -r requirements.txt
+    - CREATE .env.example with required variables
 
-CREATE src/new_feature.py:
-  - MIRROR pattern from: src/similar_feature.py
-  - MODIFY class name and core logic
-  - KEEP error handling pattern identical
+  Setup Project Structure:
+    - CREATE src/ directory tree as specified
+    - CREATE __init__.py files in all packages
+    - CREATE config files with 2025 IRS limits
+    - SETUP logging configuration
 
-...(...)
+Task 2 - Core Models Implementation:
+  Create Pydantic Models:
+    - IMPLEMENT UserProfile with validation
+    - IMPLEMENT ContributionLimits with IRS rules
+    - IMPLEMENT ContributionPlan with scheduling logic
+    - ADD comprehensive validators for all fields
+    - CREATE model factories for testing
 
-Task N:
-...
+  Create IRS Rules Engine:
+    - IMPLEMENT 2025 contribution limit lookups
+    - ADD catch-up contribution logic
+    - IMPLEMENT proration calculations
+    - ADD last-month rule handling
+    - CREATE validation for edge cases
 
+Task 3 - Agent Development:
+  UserInputAgent Implementation:
+    - CREATE conversational flow logic
+    - IMPLEMENT question sequencing
+    - ADD input validation and re-prompting
+    - IMPLEMENT state updates
+    - ADD conversation context tracking
+
+  LimitCalcAgent Implementation:
+    - CREATE limit calculation engine
+    - IMPLEMENT IRS rule application
+    - ADD proration logic
+    - IMPLEMENT catch-up eligibility
+    - ADD warning generation for edge cases
+
+  PlannerAgent Implementation:
+    - CREATE per-paycheck calculations
+    - IMPLEMENT contribution scheduling
+    - ADD recommendation engine
+    - CREATE status determination logic
+    - ADD visualization data preparation
+
+Task 4 - LangGraph Orchestration:
+  Create Graph Structure:
+    - IMPLEMENT StateGraph with ConversationState
+    - ADD all three agents as nodes
+    - DEFINE edge logic and transitions
+    - IMPLEMENT conditional routing
+    - ADD state persistence with checkpointing
+
+  Implement Error Handling:
+    - CREATE fallback mechanisms
+    - ADD retry logic with backoff
+    - IMPLEMENT graceful degradation
+    - ADD user-friendly error messages
+    - CREATE recovery flows
+
+Task 5 - Frontend Development:
+  Create Streamlit/Gradio App:
+    - IMPLEMENT chat interface
+    - ADD agent status indicators
+    - CREATE summary card component
+    - ADD visual progress tracking
+    - IMPLEMENT responsive design
+
+  Connect to LangGraph:
+    - CREATE session management
+    - IMPLEMENT real-time updates
+    - ADD state synchronization
+    - CREATE conversation history display
+    - ADD export functionality
+
+Task 6 - Testing Suite:
+  Unit Tests:
+    - TEST each agent independently
+    - TEST IRS calculation logic
+    - TEST input validation
+    - TEST error handling
+    - ACHIEVE 90%+ coverage
+
+  Integration Tests:
+    - TEST agent handoffs
+    - TEST state persistence
+    - TEST error recovery
+    - TEST conversation flows
+    - TEST edge cases
+
+  End-to-End Tests:
+    - TEST complete user journeys
+    - TEST UI interactions
+    - TEST performance under load
+    - TEST session recovery
+    - TEST data export
+
+Task 7 - Production Readiness:
+  Performance Optimization:
+    - PROFILE agent response times
+    - OPTIMIZE state operations
+    - ADD caching where appropriate
+    - IMPLEMENT connection pooling
+    - MINIMIZE LLM calls
+
+  Deployment Preparation:
+    - CREATE Docker configuration
+    - SETUP environment management
+    - ADD health check endpoints
+    - IMPLEMENT monitoring hooks
+    - CREATE deployment scripts
+
+  Documentation:
+    - WRITE API documentation
+    - CREATE user guides
+    - ADD architecture diagrams
+    - DOCUMENT deployment process
+    - CREATE troubleshooting guide
 ```
 
+### Per Task Implementation Details
 
-### Per task pseudocode as needed added to each task
 ```python
+# Task 3 - UserInputAgent Implementation Pattern
+from langgraph.graph import StateGraph
+from typing import Dict, Any
 
-# Task 1
-# Pseudocode with CRITICAL details dont write entire code
-async def new_feature(param: str) -> Result:
-    # PATTERN: Always validate input first (see src/validators.py)
-    validated = validate_input(param)  # raises ValidationError
-    
-    # GOTCHA: This library requires connection pooling
-    async with get_connection() as conn:  # see src/db/pool.py
-        # PATTERN: Use existing retry decorator
-        @retry(attempts=3, backoff=exponential)
-        async def _inner():
-            # CRITICAL: API returns 429 if >10 req/sec
-            await rate_limiter.acquire()
-            return await external_api.call(validated)
+class UserInputAgent:
+    def __init__(self):
+        self.questions = [
+            {
+                "field": "coverage_type",
+                "prompt": "Are you on self-only or family HSA coverage?",
+                "options": ["self-only", "family"],
+                "validator": lambda x: x in ["self-only", "family"]
+            },
+            {
+                "field": "ytd_contribution",
+                "prompt": "How much have you already contributed this year?",
+                "validator": lambda x: float(x) >= 0
+            },
+            {
+                "field": "is_55_plus", 
+                "prompt": "Are you 55 or older? (eligible for catch-up contributions)",
+                "options": ["yes", "no"],
+                "validator": lambda x: x.lower() in ["yes", "no"]
+            },
+            {
+                "field": "remaining_pay_periods",
+                "prompt": "How many pay periods remain in the year?",
+                "validator": lambda x: 0 <= int(x) <= 52
+            }
+        ]
         
-        result = await _inner()
+    def __call__(self, state: ConversationState) -> Dict[str, Any]:
+        user_profile = state.get("user_profile", {})
+        conversation_history = state.get("conversation_history", [])
+        
+        # Find next unanswered question
+        for question in self.questions:
+            if question["field"] not in user_profile:
+                # Add question to conversation
+                conversation_history.append({
+                    "role": "assistant",
+                    "content": question["prompt"],
+                    "options": question.get("options")
+                })
+                
+                return {
+                    "conversation_history": conversation_history,
+                    "current_agent": "user_input",
+                    "awaiting_input": question["field"]
+                }
+        
+        # All questions answered, proceed to limit calculation
+        return {
+            "user_profile": user_profile,
+            "current_agent": "limit_calc"
+        }
+
+# Task 3 - LimitCalcAgent Implementation Pattern
+class LimitCalcAgent:
+    def __init__(self):
+        self.limits_2025 = {
+            "self-only": 4300,
+            "family": 8550,
+            "catch_up": 1000
+        }
+        
+    def calculate_proration(self, start_date: date, coverage_type: str) -> Dict[str, Any]:
+        # Implement IRS last-month rule
+        # Return prorated limits and warnings
+        pass
+        
+    def __call__(self, state: ConversationState) -> Dict[str, Any]:
+        user_profile = UserProfile(**state["user_profile"])
+        
+        # Calculate base limit
+        base_limit = self.limits_2025[user_profile.coverage_type]
+        
+        # Add catch-up if eligible
+        catch_up = self.limits_2025["catch_up"] if user_profile.is_55_plus else 0
+        
+        # Calculate total allowed
+        total_allowed = base_limit + catch_up
+        
+        # Handle proration if needed
+        if user_profile.plan_start_date:
+            proration_result = self.calculate_proration(
+                user_profile.plan_start_date,
+                user_profile.coverage_type
+            )
+            total_allowed = proration_result["prorated_limit"]
+        
+        # Calculate remaining
+        remaining = max(0, total_allowed - user_profile.ytd_contribution)
+        
+        limits = ContributionLimits(
+            base_limit=base_limit,
+            catch_up_amount=catch_up,
+            total_allowed=total_allowed,
+            remaining_contribution=remaining,
+            warnings=[]
+        )
+        
+        # Add warnings
+        if user_profile.ytd_contribution > total_allowed:
+            limits.warnings.append("You have already exceeded the annual limit!")
+        
+        return {
+            "contribution_limits": limits.dict(),
+            "current_agent": "planner"
+        }
+
+# Task 4 - Graph Creation Pattern
+def create_hsa_planner_graph():
+    # Initialize agents
+    user_input = UserInputAgent()
+    limit_calc = LimitCalcAgent()
+    planner = PlannerAgent()
     
-    # PATTERN: Standardized response format
-    return format_response(result)  # see src/utils/responses.py
+    # Create graph
+    workflow = StateGraph(ConversationState)
+    
+    # Add nodes
+    workflow.add_node("user_input", user_input)
+    workflow.add_node("limit_calc", limit_calc)
+    workflow.add_node("planner", planner)
+    
+    # Add edges
+    workflow.add_conditional_edges(
+        "user_input",
+        lambda x: x["current_agent"],
+        {
+            "user_input": "user_input",  # Continue collecting input
+            "limit_calc": "limit_calc"    # Move to calculation
+        }
+    )
+    
+    workflow.add_edge("limit_calc", "planner")
+    workflow.add_edge("planner", END)
+    
+    # Set entry point
+    workflow.set_entry_point("user_input")
+    
+    # Compile with checkpointing
+    from langgraph.checkpoint.memory import MemorySaver
+    memory = MemorySaver()
+    
+    return workflow.compile(checkpointer=memory)
+
+# Task 5 - Streamlit UI Pattern
+import streamlit as st
+from streamlit_chat import message
+
+def main():
+    st.title("HSA Contribution Planner")
+    
+    # Initialize session state
+    if "graph" not in st.session_state:
+        st.session_state.graph = create_hsa_planner_graph()
+        st.session_state.thread_id = str(uuid.uuid4())
+        st.session_state.messages = []
+    
+    # Display conversation
+    for msg in st.session_state.messages:
+        message(msg["content"], is_user=msg["role"] == "user")
+    
+    # Handle user input
+    user_input = st.chat_input("Your response:")
+    
+    if user_input:
+        # Add to messages
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        
+        # Process with graph
+        config = {"configurable": {"thread_id": st.session_state.thread_id}}
+        result = st.session_state.graph.invoke(
+            {"user_input": user_input},
+            config
+        )
+        
+        # Display agent response
+        if "agent_message" in result:
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": result["agent_message"]
+            })
+        
+        # Display summary card if planning complete
+        if result.get("current_agent") == "completed":
+            display_summary_card(result["contribution_plan"])
+
+def display_summary_card(plan: dict):
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.metric(
+            "Remaining Contribution",
+            f"${plan['total_remaining']:,.2f}",
+            delta=None
+        )
+    
+    with col2:
+        st.metric(
+            "Per Paycheck",
+            f"${plan['per_paycheck_amount']:,.2f}",
+            delta=None
+        )
+    
+    # Status indicator
+    status_colors = {
+        "on-track": "🟢",
+        "at-risk": "🟡", 
+        "over-limit": "🔴"
+    }
+    
+    st.info(f"{status_colors[plan['status']]} Status: {plan['status'].title()}")
 ```
 
 ### Integration Points
+
 ```yaml
-DATABASE:
-  - migration: "Add column 'feature_enabled' to users table"
-  - index: "CREATE INDEX idx_feature_lookup ON users(feature_id)"
-  
-CONFIG:
-  - add to: config/settings.py
-  - pattern: "FEATURE_TIMEOUT = int(os.getenv('FEATURE_TIMEOUT', '30'))"
-  
-ROUTES:
-  - add to: src/api/routes.py  
-  - pattern: "router.include_router(feature_router, prefix='/feature')"
+LANGGRAPH_CORE:
+  - StateGraph: Central orchestration mechanism
+  - Checkpointer: Conversation persistence across sessions
+  - Conditional Edges: Dynamic routing based on state
+  - Memory Management: Thread-based conversation isolation
+
+LANGCHAIN_INTEGRATION:
+  - LLM Integration: Optional for natural language processing
+  - Prompt Templates: Structured agent responses
+  - Output Parsers: Consistent message formatting
+  - Callbacks: Monitoring and debugging
+
+FRONTEND_FRAMEWORKS:
+  - Streamlit: Rapid prototyping with chat components
+  - Gradio: Alternative with built-in chat interface
+  - FastAPI: Backend API for production deployment
+  - WebSockets: Real-time conversation updates
+
+DATA_PERSISTENCE:
+  - PostgreSQL: User profiles and conversation history
+  - SQLite: Local development and testing
+  - File System: Checkpoint storage for development
+
 ```
 
-## Validation Loop
+## Validation Gate
 
-### Level 1: Syntax & Style
-```bash
-# Run these FIRST - fix any errors before proceeding
-ruff check src/new_feature.py --fix  # Auto-fix what's possible
-mypy src/new_feature.py              # Type checking
-
-# Expected: No errors. If errors, READ the error and fix.
-```
-
-### Level 2: Unit Tests each new feature/file/function use existing test patterns
-```python
-# CREATE test_new_feature.py with these test cases:
-def test_happy_path():
-    """Basic functionality works"""
-    result = new_feature("valid_input")
-    assert result.status == "success"
-
-def test_validation_error():
-    """Invalid input raises ValidationError"""
-    with pytest.raises(ValidationError):
-        new_feature("")
-
-def test_external_api_timeout():
-    """Handles timeouts gracefully"""
-    with mock.patch('external_api.call', side_effect=TimeoutError):
-        result = new_feature("valid")
-        assert result.status == "error"
-        assert "timeout" in result.message
-```
+### Level 1: Code Quality & Type Safety
 
 ```bash
-# Run and iterate until passing:
-uv run pytest test_new_feature.py -v
-# If failing: Read error, understand root cause, fix code, re-run (never mock to pass)
+# Python type checking
+mypy src/ --strict
+
+# Code formatting
+black src/ tests/
+isort src/ tests/
+
+# Linting
+ruff check src/ tests/
+
+# Expected: No type errors, consistent formatting
+# If errors: Fix type annotations, resolve import issues
 ```
 
-### Level 3: Integration Test
+### Level 2: Unit Testing
+
 ```bash
-# Start the service
-uv run python -m src.main --dev
+# Run unit tests with coverage
+pytest tests/unit/ -v --cov=src --cov-report=html
 
-# Test the endpoint
-curl -X POST http://localhost:8000/feature \
-  -H "Content-Type: application/json" \
-  -d '{"param": "test_value"}'
+# Test individual agents
+pytest tests/unit/test_user_input_agent.py -v
+pytest tests/unit/test_limit_calc_agent.py -v
+pytest tests/unit/test_planner_agent.py -v
 
-# Expected: {"status": "success", "data": {...}}
-# If error: Check logs at logs/app.log for stack trace
+# Expected: All tests pass, >90% coverage
+# If failures: Fix agent logic, add missing test cases
 ```
 
-## Final validation Checklist
-- [ ] All tests pass: `uv run pytest tests/ -v`
-- [ ] No linting errors: `uv run ruff check src/`
-- [ ] No type errors: `uv run mypy src/`
-- [ ] Manual test successful: [specific curl/command]
-- [ ] Error cases handled gracefully
-- [ ] Logs are informative but not verbose
-- [ ] Documentation updated if needed
+### Level 3: Integration Testing
+
+```bash
+# Test agent orchestration
+pytest tests/integration/test_agent_handoffs.py -v
+
+# Test conversation flows
+pytest tests/integration/test_conversation_flow.py -v
+
+# Test state persistence
+pytest tests/integration/test_state_persistence.py -v
+
+# Expected: Smooth agent transitions, state consistency
+# If failures: Check graph configuration, state schema
+```
+
+### Level 4: End-to-End Testing
+
+```bash
+# Run full conversation scenarios
+pytest tests/e2e/ -v
+
+# Test with example flows
+python scripts/test_example_flows.py
+
+# Manual UI testing
+streamlit run src/ui/app.py
+
+# Expected: Complete conversations work, UI responsive
+# If issues: Debug conversation flow, fix UI updates
+```
+
+### Level 5: Performance Testing
+
+```bash
+# Load testing
+locust -f tests/performance/locustfile.py --headless -u 100 -r 10 -t 60s
+
+# Response time analysis
+python scripts/analyze_performance.py
+
+# Expected: <2s agent response, 1000+ concurrent users
+# If slow: Optimize state operations, add caching
+```
+
+## Final Validation Checklist
+
+### Core Functionality
+- [ ] All three agents properly initialized and registered
+- [ ] Agent handoffs work with state preservation
+- [ ] IRS calculations accurate for all test cases
+- [ ] Error messages clear and actionable
+- [ ] UI displays real-time agent responses
+
+### Testing & Quality
+- [ ] Type checking passes: `mypy src/ --strict`
+- [ ] Unit test coverage >90%: `pytest --cov`
+- [ ] Integration tests pass: All agent interactions verified
+- [ ] E2E scenarios complete successfully
+- [ ] Performance meets <2s response requirement
+
+### Production Readiness
+- [ ] Logging configured for all agents
+- [ ] Error tracking integrated
+- [ ] Deployment scripts tested
+- [ ] Documentation complete
+- [ ] Security review passed
 
 ---
 
 ## Anti-Patterns to Avoid
-- ❌ Don't create new patterns when existing ones work
-- ❌ Don't skip validation because "it should work"  
-- ❌ Don't ignore failing tests - fix them
-- ❌ Don't use sync functions in async context
-- ❌ Don't hardcode values that should be config
-- ❌ Don't catch all exceptions - be specific
+
+### LangGraph-Specific
+- ❌ Don't create circular dependencies between agents
+- ❌ Don't modify state outside of agent functions
+- ❌ Don't forget to handle partial state updates
+- ❌ Don't skip state validation between agents
+- ❌ Don't ignore checkpoint/persistence errors
+
+### Agent Design
+- ❌ Don't combine unrelated responsibilities in one agent
+- ❌ Don't make agents dependent on specific UI implementations
+- ❌ Don't hardcode IRS limits - use configuration files
+- ❌ Don't skip input validation at agent boundaries
+- ❌ Don't forget conversation context in error messages
+
+### Testing & Development
+- ❌ Don't test agents only in isolation - test orchestration
+- ❌ Don't skip edge case testing (negative values, extreme inputs)
+- ❌ Don't deploy without load testing conversation flows
+- ❌ Don't ignore conversation state cleanup
+- ❌ Don't forget to test session recovery scenarios

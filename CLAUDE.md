@@ -99,6 +99,23 @@
 - **Parameterized tests** for similar cases.
 - **Run tests before every commit**.
 
+### 🗄️ Mock Data & Database Testing - MANDATORY
+- **Database First**: Setup SQLite database and schema BEFORE writing any code
+  - Use SQLite for development (`dev.db`) and in-memory (`:memory:`) for tests
+  - Implement Alembic or similar for migration management
+  - Create database models with SQLAlchemy or equivalent ORM
+- **Mock Data Factory Pattern**: Use Factory Boy (Python) or equivalent
+  - Create factories for ALL data models with realistic fake data (Faker library)
+  - Implement scenario-based factories (new user, edge cases, error states)
+  - Use deterministic seeds for reproducible test runs
+- **Test Data Management**:
+  - Repository pattern for clean data access abstraction
+  - Transactional test fixtures with automatic rollback/cleanup
+  - Separate fixture files for different test scenarios
+  - Performance test datasets (1000+ records) for load testing
+- **Data Compliance**: NO real PII in test data - use realistic but fake data only
+- **Reference Guidelines**: See PRPs/templates/prp_base.md and .claude/commands/ for detailed patterns
+
 ### 🔒 Security & Error Handling
 - **Never commit secrets** - use environment variables.
 - **Validate all inputs** at boundaries.

@@ -15,6 +15,33 @@ Template optimized for AI agents to implement a production-ready HSA (Health Sav
 4. **Test-Driven Agent Development**: Build comprehensive test suites for individual agents and orchestration flows
 5. **User Experience Focus**: Provide clear, actionable guidance with visual feedback throughout the planning process
 
+## Data Management & Testing Infrastructure
+
+### Mock Data Generation Standards
+1. **Factory Pattern Implementation**: Use Factory Boy (Python) or equivalent for consistent test object creation
+2. **Fixture Management**: Implement pytest fixtures or similar for reusable test data scenarios
+3. **Realistic Data Generation**: Leverage Faker library for generating realistic user profiles, dates, and financial data
+4. **Deterministic Seeding**: Use fixed random seeds for reproducible test runs
+5. **Data Builders**: Implement test data builders for complex HSA scenarios
+
+### Database Strategy
+1. **SQLite for Development**: Local SQLite databases for development and testing
+2. **In-Memory Testing**: Use `:memory:` SQLite databases for fast unit tests
+3. **Schema Migrations**: Implement Alembic or similar for version-controlled database changes
+4. **Test Isolation**: Transaction rollback or database recreation between test runs
+5. **Repository Pattern**: Abstract data access for clean separation of concerns
+
+### Data Hydration Patterns
+1. **Scenario-Based Fixtures**: Pre-defined data sets for common HSA scenarios:
+   - New enrollment (no YTD contributions)
+   - Mid-year job change
+   - Approaching contribution limits
+   - Over-contribution scenarios
+   - Catch-up eligible users
+2. **Performance Data Sets**: Large-scale data for load testing (1000+ user profiles)
+3. **Edge Case Collections**: Unusual but valid scenarios for comprehensive testing
+4. **GDPR Compliance**: No real PII in test data, use realistic but fake data
+
 ---
 
 ## Goal
@@ -190,6 +217,145 @@ Build a production-ready HSA Contribution Planner with:
 └── .env.example                  # Environment variables
 ```
 
+### Data Models & Types
+
+```python
+# Mock Data Factory Patterns
+from factory import Factory, Faker, SubFactory, LazyAttribute
+from factory.alchemy import SQLAlchemyModelFactory
+import factory
+from datetime import date, timedelta
+import random
+
+# Database Models
+from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, Date
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+Base = declarative_base()
+
+class UserProfileDB(Base):
+    __tablename__ = 'user_profiles'
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String, unique=True)
+    coverage_type = Column(String)
+    ytd_contribution = Column(Float)
+    is_55_plus = Column(Boolean)
+    remaining_pay_periods = Column(Integer)
+    pay_frequency = Column(String)
+    employer_contribution = Column(Float)
+    plan_start_date = Column(Date)
+    created_at = Column(Date)
+
+# Factory for generating test data
+class UserProfileFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = UserProfileDB
+        sqlalchemy_session_persistence = 'commit'
+    
+    user_id = Faker('uuid4')
+    coverage_type = factory.LazyFunction(lambda: random.choice(['self-only', 'family']))
+    ytd_contribution = factory.LazyFunction(lambda: round(random.uniform(0, 7000), 2))
+    is_55_plus = factory.LazyFunction(lambda: random.choice([True, False]))
+    remaining_pay_periods = factory.LazyFunction(lambda: random.randint(1, 26))
+    pay_frequency = factory.LazyFunction(lambda: random.choice(['biweekly', 'semi-monthly']))
+    employer_contribution = factory.LazyFunction(lambda: round(random.uniform(0, 2000), 2))
+    plan_start_date = factory.LazyFunction(lambda: date.today() - timedelta(days=random.randint(1, 300)))
+    created_at = factory.LazyFunction(date.today)
+
+# Scenario-based factories
+class NewEnrollmentFactory(UserProfileFactory):
+    """User just enrolled - no YTD contributions"""
+    ytd_contribution = 0.0
+    plan_start_date = factory.LazyFunction(date.today)
+    remaining_pay_periods = factory.LazyFunction(lambda: random.randint(20, 26))
+
+class ApproachingLimitFactory(UserProfileFactory):
+    """User approaching contribution limit"""
+    @factory.lazy_attribute
+    def ytd_contribution(self):
+        limit = 4300 if self.coverage_type == 'self-only' else 8550
+        return round(limit * 0.85, 2)  # 85% of limit
+    
+    remaining_pay_periods = factory.LazyFunction(lambda: random.randint(3, 8))
+
+class OverContributionFactory(UserProfileFactory):
+    """User has over-contributed"""
+    @factory.lazy_attribute
+    def ytd_contribution(self):
+        limit = 4300 if self.coverage_type == 'self-only' else 8550
+        return round(limit * 1.1, 2)  # 110% of limit
+
+# Test Data Builder Pattern
+class HSATestDataBuilder:
+    def __init__(self, session):
+        self.session = session
+        UserProfileFactory._meta.sqlalchemy_session = session
+    
+    def create_test_scenario(self, scenario: str):
+        """Create predefined test scenarios"""
+        scenarios = {
+            'new_enrollment': NewEnrollmentFactory,
+            'approaching_limit': ApproachingLimitFactory,
+            'over_contribution': OverContributionFactory,
+            'catch_up_eligible': lambda: UserProfileFactory(is_55_plus=True),
+            'mid_year_change': lambda: UserProfileFactory(
+                plan_start_date=date.today() - timedelta(days=180)
+            )
+        }
+        
+        factory = scenarios.get(scenario, UserProfileFactory)
+        return factory() if callable(factory) else factory.create()
+    
+    def create_performance_dataset(self, count: int = 1000):
+        """Create large dataset for performance testing"""
+        return UserProfileFactory.create_batch(count)
+    
+    def reset_database(self):
+        """Clean all test data"""
+        self.session.query(UserProfileDB).delete()
+        self.session.commit()
+
+# SQLite Setup for Testing
+def setup_test_database(in_memory: bool = True):
+    """Setup SQLite database for testing"""
+    if in_memory:
+        engine = create_engine('sqlite:///:memory:')
+    else:
+        engine = create_engine('sqlite:///test_hsa.db')
+    
+    Base.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    return Session(), engine
+
+# Pytest Fixtures
+import pytest
+
+@pytest.fixture
+def db_session():
+    """Provide a transactional database session for tests"""
+    session, engine = setup_test_database(in_memory=True)
+    yield session
+    session.close()
+    engine.dispose()
+
+@pytest.fixture
+def test_data_builder(db_session):
+    """Provide test data builder for tests"""
+    return HSATestDataBuilder(db_session)
+
+@pytest.fixture
+def sample_users(test_data_builder):
+    """Create a set of sample users for testing"""
+    return {
+        'new_user': test_data_builder.create_test_scenario('new_enrollment'),
+        'near_limit': test_data_builder.create_test_scenario('approaching_limit'),
+        'over_limit': test_data_builder.create_test_scenario('over_contribution'),
+        'catch_up': test_data_builder.create_test_scenario('catch_up_eligible')
+    }
+```
+
 ### Known Gotchas & Critical LangGraph Patterns
 
 ```python
@@ -317,6 +483,28 @@ class AgentMessage(BaseModel):
 ### List of Tasks (Complete in order)
 
 ```yaml
+Task 0 - Database & Mock Data Setup:
+  Initialize Testing Infrastructure:
+    - CREATE SQLite database schema in use-case/db/
+    - IMPLEMENT database models with SQLAlchemy
+    - CREATE Alembic migration scripts
+    - SETUP test database factories
+    - IMPLEMENT mock data generation utilities
+    
+  Create Mock Data Factories:
+    - IMPLEMENT UserProfileFactory with Faker
+    - CREATE scenario-based factories (new user, near limit, etc.)
+    - ADD test data builder for complex scenarios
+    - IMPLEMENT deterministic data generation (fixed seeds)
+    - CREATE performance testing data generators
+    
+  Setup Test Fixtures:
+    - CREATE pytest fixtures for database sessions
+    - IMPLEMENT transactional test isolation
+    - ADD fixture for common test scenarios
+    - CREATE data cleanup utilities
+    - IMPLEMENT fixture dependencies
+
 Task 1 - Project Setup:
   Initialize Python Project:
     - CREATE virtual environment: python -m venv venv_linux
@@ -406,10 +594,13 @@ Task 5 - Frontend Development:
 
 Task 6 - Testing Suite:
   Unit Tests:
-    - TEST each agent independently
-    - TEST IRS calculation logic
-    - TEST input validation
-    - TEST error handling
+    - SETUP test database with mock data
+    - TEST each agent independently with fixture data
+    - TEST IRS calculation logic with edge case data
+    - TEST input validation with invalid mock data
+    - TEST error handling with database failures
+    - TEST data persistence and retrieval
+    - VERIFY mock data determinism
     - ACHIEVE 90%+ coverage
 
   Integration Tests:
@@ -452,9 +643,25 @@ Task 7 - Production Readiness:
 ### Per Task Implementation Details
 
 ```python
-# Task 3 - UserInputAgent Implementation Pattern
+# Task 3 - UserInputAgent Implementation Pattern with Mock Data
 from langgraph.graph import StateGraph
 from typing import Dict, Any
+from sqlalchemy.orm import Session
+
+# Mock data integration for testing
+def create_test_user_profiles(session: Session):
+    """Create mock user profiles for testing agent interactions"""
+    builder = HSATestDataBuilder(session)
+    
+    # Create diverse test scenarios
+    test_users = [
+        builder.create_test_scenario('new_enrollment'),
+        builder.create_test_scenario('approaching_limit'),
+        builder.create_test_scenario('mid_year_change'),
+        builder.create_test_scenario('catch_up_eligible')
+    ]
+    
+    return test_users
 
 class UserInputAgent:
     def __init__(self):
@@ -698,6 +905,25 @@ DATA_PERSISTENCE:
 ```
 
 ## Validation Gate
+
+### Level 0: Database & Mock Data Validation
+
+```bash
+# Verify database setup
+python -c "from src.db.models import Base, engine; Base.metadata.create_all(engine)"
+
+# Test mock data generation
+pytest tests/test_mock_data.py -v
+
+# Validate fixtures
+pytest tests/test_fixtures.py -v
+
+# Check data determinism
+pytest tests/test_data_determinism.py -v --seed=42
+
+# Expected: All database tables created, mock data generates consistently
+# If errors: Check SQLAlchemy models, factory definitions
+```
 
 ### Level 1: Code Quality & Type Safety
 

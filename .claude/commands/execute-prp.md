@@ -22,6 +22,49 @@ Implement a feature using the PRP file while following all CLAUDE.md rules.
 
 ## Execution Process
 
+0. **Database & Mock Data Setup** (MANDATORY FIRST STEP)
+   - Create database directory: `mkdir -p /workspaces/hackathon_demo/use-case/db`
+   - Initialize SQLite database:
+     ```bash
+     cd /workspaces/hackathon_demo/use-case
+     # Create database schema file
+     cat > db/schema.sql << 'EOF'
+     CREATE TABLE IF NOT EXISTS user_profiles (
+         id INTEGER PRIMARY KEY AUTOINCREMENT,
+         user_id TEXT UNIQUE NOT NULL,
+         coverage_type TEXT NOT NULL,
+         ytd_contribution REAL NOT NULL,
+         is_55_plus BOOLEAN NOT NULL,
+         remaining_pay_periods INTEGER NOT NULL,
+         pay_frequency TEXT,
+         employer_contribution REAL,
+         plan_start_date DATE,
+         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+     );
+     
+     CREATE TABLE IF NOT EXISTS contribution_calculations (
+         id INTEGER PRIMARY KEY AUTOINCREMENT,
+         user_id TEXT NOT NULL,
+         calculation_date DATE NOT NULL,
+         annual_limit REAL NOT NULL,
+         remaining_allowed REAL NOT NULL,
+         per_period_amount REAL NOT NULL,
+         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+         FOREIGN KEY (user_id) REFERENCES user_profiles (user_id)
+     );
+     EOF
+     
+     # Initialize development database
+     sqlite3 db/dev_hsa.db < db/schema.sql
+     
+     # Create Alembic configuration
+     alembic init db/migrations
+     ```
+   - Setup mock data factories in `src/test_utils/factories.py`
+   - Create fixture loader in `tests/fixtures/loader.py`
+   - Initialize test database: `sqlite3 db/test_hsa.db < db/schema.sql`
+   - Track: `mcp__memory-bank__track_progress("Database Setup", "Created SQLite schema and test database")`
+
 1. **Load and Validate PRP**
    - Read the specified PRP file
    - Verify TDD task ordering (tests before implementation)
@@ -40,17 +83,67 @@ Implement a feature using the PRP file while following all CLAUDE.md rules.
    
    For each component:
    
-   a) **Write Failing Tests First**
+   a) **Setup Test Data & Write Failing Tests**
+      - Create test fixtures with mock data:
+        ```python
+        # tests/conftest.py
+        import pytest
+        from sqlalchemy import create_engine
+        from sqlalchemy.orm import sessionmaker
+        from src.test_utils.factories import UserProfileFactory, HSATestDataBuilder
+        
+        @pytest.fixture
+        def test_db():
+            engine = create_engine('sqlite:///:memory:')
+            # Create tables
+            Base.metadata.create_all(engine)
+            Session = sessionmaker(bind=engine)
+            session = Session()
+            yield session
+            session.close()
+        
+        @pytest.fixture
+        def test_data_builder(test_db):
+            return HSATestDataBuilder(test_db)
+        
+        @pytest.fixture
+        def sample_users(test_data_builder):
+            return {
+                'standard': test_data_builder.create_test_scenario('standard'),
+                'near_limit': test_data_builder.create_test_scenario('approaching_limit'),
+                'over_limit': test_data_builder.create_test_scenario('over_contribution')
+            }
+        ```
       - Create test file in `/workspaces/hackathon_demo/use-case/tests/`
-      - Write comprehensive test cases (happy path, edge cases, errors)
+      - Write comprehensive test cases using mock data fixtures
       - Run tests to ensure they fail: `pytest {test_file} -v`
-      - Track: `mcp__memory-bank__track_progress("TDD", "Created failing tests for {component}")`
+      - Track: `mcp__memory-bank__track_progress("TDD", "Created failing tests with mock data for {component}")`
    
-   b) **Implement Code**
+   b) **Implement Code with Data Integration**
       - Create implementation in `/workspaces/hackathon_demo/use-case/src/`
+      - Implement repository pattern for data access:
+        ```python
+        # src/repositories/user_profile_repository.py
+        from sqlalchemy.orm import Session
+        from src.models import UserProfile
+        
+        class UserProfileRepository:
+            def __init__(self, session: Session):
+                self.session = session
+            
+            def create(self, user_data: dict) -> UserProfile:
+                user = UserProfile(**user_data)
+                self.session.add(user)
+                self.session.commit()
+                return user
+            
+            def get_by_user_id(self, user_id: str) -> UserProfile:
+                return self.session.query(UserProfile).filter_by(user_id=user_id).first()
+        ```
       - Follow patterns identified in PRP
       - Use `mcp__ide__getDiagnostics()` to catch issues early
       - Make tests pass with minimal code
+      - Ensure proper database transaction handling
    
    c) **Refactor**
       - Improve code quality while keeping tests green
@@ -59,7 +152,21 @@ Implement a feature using the PRP file while following all CLAUDE.md rules.
 
 4. **Progressive Validation**
    
-   a) **Syntax & Style** (Run first)
+   a) **Database & Mock Data Validation** (Run first)
+      ```bash
+      cd /workspaces/hackathon_demo/use-case
+      
+      # Verify database setup
+      sqlite3 db/test_hsa.db ".tables"
+      
+      # Test mock data generation
+      python -c "from src.test_utils.factories import UserProfileFactory; print(UserProfileFactory.build())"
+      
+      # Validate fixtures
+      pytest tests/test_fixtures.py -v
+      ```
+   
+   b) **Syntax & Style**
       ```bash
       # Python
       cd /workspaces/hackathon_demo/use-case
@@ -71,15 +178,23 @@ Implement a feature using the PRP file while following all CLAUDE.md rules.
       npm run type-check
       ```
    
-   b) **Unit Tests with Coverage**
+   c) **Unit Tests with Coverage**
       ```bash
+      # Run with test database
       pytest tests/unit/ -v --cov=src --cov-report=term-missing
       # Ensure minimum 80% coverage
       ```
    
-   c) **Integration Tests**
+   d) **Integration Tests with Database**
       ```bash
-      pytest tests/integration/ -v
+      # Test with full database integration
+      pytest tests/integration/ -v --db=test
+      ```
+   
+   e) **Data Cleanup Validation**
+      ```bash
+      # Verify test isolation
+      pytest tests/test_cleanup.py -v
       ```
    
    d) **Fix Any Failures**
@@ -90,7 +205,28 @@ Implement a feature using the PRP file while following all CLAUDE.md rules.
 5. **Completion & Context Update**
    - Verify all PRP requirements implemented
    - Ensure all files are in `/workspaces/hackathon_demo/use-case`
+   - Clean up test databases:
+     ```bash
+     # Archive test data for future reference
+     cp db/test_hsa.db db/test_hsa_$(date +%Y%m%d).db.backup
+     
+     # Clean test database
+     sqlite3 db/test_hsa.db "DELETE FROM contribution_calculations; DELETE FROM user_profiles;"
+     ```
    - Run final validation suite across all tests
+   - Document mock data patterns used:
+     ```
+     mcp__knowledge-graph__create_entities([{
+         name: "MockDataPatterns",
+         entityType: "test-infrastructure",
+         observations: [
+             "Factory pattern used for user profile generation",
+             "SQLite in-memory databases for unit tests",
+             "Transactional fixtures for test isolation",
+             "Scenario-based test data builders implemented"
+         ]
+     }])
+     ```
    - Update MCP context:
      ```
      mcp__memory-bank__update_active_context(
@@ -113,31 +249,59 @@ Implement a feature using the PRP file while following all CLAUDE.md rules.
 
 ### Common Issues & Solutions
 
-1. **Files Created Outside use-case Directory**
+1. **Database Connection Errors**
+   - Verify SQLite is installed: `sqlite3 --version`
+   - Check database file permissions
+   - Ensure database path is absolute in connection string
+   - For in-memory databases, verify syntax: `sqlite:///:memory:`
+
+2. **Mock Data Generation Failures**
+   - Check Factory Boy installation: `pip install factory-boy faker`
+   - Verify all required fields in factories
+   - Ensure proper faker providers are used
+   - Check for circular dependencies in factories
+
+3. **Test Data Contamination**
+   - Verify transaction rollback in fixtures
+   - Check for shared database connections
+   - Ensure proper teardown methods
+   - Use separate databases for different test types
+
+4. **Files Created Outside use-case Directory**
    - STOP immediately
    - Move files to correct location under `/workspaces/hackathon_demo/use-case`
    - Update all imports and paths
    - Re-run validation
 
-2. **Test Failures**
+5. **Test Failures**
    - Review test expectations vs implementation
    - Check for missing edge cases
    - Verify test setup/teardown
+   - Validate mock data matches test expectations
+   - Check database state before/after tests
    - Use `mcp__ide__getDiagnostics()` for code issues
 
-3. **Coverage Below 80%**
+6. **Coverage Below 80%**
    - Identify uncovered lines: `pytest --cov-report=html`
-   - Add missing test cases
+   - Add missing test cases with appropriate mock data
    - Focus on error paths and edge cases
+   - Test database error scenarios
 
-4. **Import/Module Errors**
+7. **Import/Module Errors**
    - Verify all paths relative to `/workspaces/hackathon_demo/use-case`
    - Check `__init__.py` files exist
    - For Python: Ensure using `venv_linux`
+   - Verify SQLAlchemy models are properly imported
 
-5. **MCP Connection Issues**
+8. **MCP Connection Issues**
    - Continue with implementation
    - Log decisions manually
    - Update context when connection restored
+
+9. **Data Migration Issues**
+   - Check Alembic configuration
+   - Verify migration scripts syntax
+   - Test migrations on copy of database first
+   - Keep migration rollback scripts
 
 Remember: Always reference the PRP for specific patterns and requirements. The PRP is your source of truth for implementation details.

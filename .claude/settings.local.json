@@ -1,10 +1,4 @@
 {
-  "enabledMcpjsonServers": [
-    "playwright",
-    "knowledge-graph",
-    "memory-bank",
-    "perplexity-ask"
-  ],
   "permissions": {
     "allow": [
       "Bash(grep:*)",
@@ -25,5 +19,12 @@
       "WebFetch(domain:docs.anthropic.com)"
     ],
     "deny": []
-  }
+  },
+  "enabledMcpjsonServers": [
+    "playwright",
+    "knowledge-graph",
+    "memory-bank",
+    "perplexity-ask"
+  ],
+  "enableAllProjectMcpServers": true
 }

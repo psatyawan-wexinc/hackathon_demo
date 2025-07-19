@@ -167,6 +167,155 @@ These examples demonstrate expected agent choreography and UI output for impleme
 * **State Management**: Maintains planning history for user
 * **Error Handling**: Provides fallback recommendations for edge cases
 
+## TEST DATA & DATABASE STRATEGY:
+
+### Database Architecture
+
+**SQLite Configuration:**
+- **Development**: Local SQLite file (`dev_hsa.db`) with persistent test data
+- **Testing**: In-memory SQLite (`:memory:`) for fast, isolated test runs
+- **CI/CD**: Ephemeral SQLite instances with fixture data
+- **Migration Tool**: Alembic for schema version control
+
+### Mock Data Specifications by Agent
+
+#### UserInputAgent Test Data
+```python
+# Mock conversation scenarios
+USER_INPUT_SCENARIOS = {
+    'happy_path': [
+        {'coverage_type': 'family', 'ytd_contribution': 3000, 'is_55_plus': False, 'remaining_pay_periods': 12},
+        {'coverage_type': 'self-only', 'ytd_contribution': 0, 'is_55_plus': True, 'remaining_pay_periods': 26}
+    ],
+    'edge_cases': [
+        {'coverage_type': 'family', 'ytd_contribution': 8600, 'is_55_plus': True, 'remaining_pay_periods': 1},  # Over limit
+        {'coverage_type': 'self-only', 'ytd_contribution': -100, 'is_55_plus': False, 'remaining_pay_periods': 0}  # Invalid
+    ],
+    'validation_tests': [
+        {'coverage_type': 'invalid', 'ytd_contribution': 'abc', 'is_55_plus': 'maybe', 'remaining_pay_periods': 53}
+    ]
+}
+```
+
+#### LimitCalcAgent Test Data
+```python
+# IRS limit calculation test cases
+LIMIT_CALC_SCENARIOS = {
+    'standard_limits': [
+        {'input': {'coverage': 'self-only', 'age_55_plus': False}, 'expected': 4300},
+        {'input': {'coverage': 'family', 'age_55_plus': False}, 'expected': 8550},
+        {'input': {'coverage': 'self-only', 'age_55_plus': True}, 'expected': 5300},
+        {'input': {'coverage': 'family', 'age_55_plus': True}, 'expected': 9550}
+    ],
+    'proration_cases': [
+        {'start_date': '2025-07-01', 'coverage': 'self-only', 'expected_limit': 2150},  # 6 months
+        {'start_date': '2025-10-01', 'coverage': 'family', 'expected_limit': 2137.50}  # 3 months
+    ],
+    'last_month_rule': [
+        {'enrollment_date': '2025-12-01', 'full_year_eligible': True, 'testing_period': True}
+    ]
+}
+```
+
+#### PlannerAgent Test Data
+```python
+# Contribution planning scenarios
+PLANNER_SCENARIOS = {
+    'contribution_schedules': [
+        {
+            'remaining_allowed': 2400,
+            'pay_periods': 12,
+            'frequency': 'biweekly',
+            'expected_per_period': 200
+        },
+        {
+            'remaining_allowed': 1000,
+            'pay_periods': 26,
+            'frequency': 'weekly',
+            'expected_per_period': 38.46
+        }
+    ],
+    'warning_scenarios': [
+        {'ytd': 4500, 'limit': 4300, 'expected_warning': 'Over-contribution detected'},
+        {'ytd': 4250, 'limit': 4300, 'periods': 2, 'expected_warning': 'Approaching limit'}
+    ]
+}
+```
+
+### Data Factory Implementation
+
+```python
+# Factory pattern for test data generation
+from factory import Factory, Faker, Trait
+import factory
+
+class HSAUserFactory(Factory):
+    class Meta:
+        model = dict
+    
+    user_id = Faker('uuid4')
+    first_name = Faker('first_name')
+    last_name = Faker('last_name')
+    email = Faker('email')
+    coverage_type = factory.Iterator(['self-only', 'family'])
+    ytd_contribution = factory.Faker('pyfloat', min_value=0, max_value=8000, right_digits=2)
+    birth_date = Faker('date_of_birth', minimum_age=25, maximum_age=70)
+    
+    class Params:
+        catch_up_eligible = Trait(
+            birth_date=factory.Faker('date_of_birth', minimum_age=55, maximum_age=70)
+        )
+        new_enrollment = Trait(
+            ytd_contribution=0,
+            enrollment_date=factory.Faker('date_this_year')
+        )
+```
+
+### Test Data Management
+
+**Fixture Organization:**
+```
+use-case/tests/fixtures/
+├── users/
+│   ├── standard_users.json      # Basic test users
+│   ├── edge_case_users.json     # Boundary condition users
+│   └── performance_users.sql    # Large dataset for load testing
+├── conversations/
+│   ├── happy_path.json          # Successful conversation flows
+│   ├── error_scenarios.json     # Error handling test cases
+│   └── incomplete_flows.json    # Partial conversation states
+└── calculations/
+    ├── irs_limits_2025.json     # IRS limit test data
+    ├── proration_cases.json     # Mid-year enrollment tests
+    └── contribution_plans.json  # Expected calculation results
+```
+
+**Data Isolation Strategy:**
+1. **Unit Tests**: Fresh in-memory database per test
+2. **Integration Tests**: Transactional rollback after each test
+3. **E2E Tests**: Dedicated test database with known state
+4. **Performance Tests**: Pre-populated database with 10K+ records
+
+### Mock External Dependencies
+
+```python
+# Mock IRS API responses (if applicable)
+class MockIRSService:
+    @staticmethod
+    def get_contribution_limits(year: int, coverage_type: str):
+        limits = {
+            2025: {'self-only': 4300, 'family': 8550, 'catch_up': 1000}
+        }
+        return limits.get(year, {})
+
+# Mock employer contribution data
+class MockEmployerService:
+    @staticmethod
+    def get_employer_contribution(employer_id: str):
+        # Return deterministic mock data based on employer_id hash
+        return (hash(employer_id) % 2000) + 500  # $500-$2500 range
+```
+
 ## DATA FLOW:
 
 ```
@@ -245,6 +394,54 @@ User → UserInputAgent
 * **Audit Trail**: Maintain conversation history for compliance
 * **Access Control**: Role-based permissions for admin functions
 * **HIPAA Considerations**: If applicable, ensure PHI handling compliance
+* **Test Data Compliance**: 
+  - No real user data in test environments
+  - Use Faker library for realistic but fake PII
+  - Implement data anonymization for production data copies
+  - Regular audit of test databases for PII leakage
+
+### Database Performance Optimization
+
+**Indexing Strategy:**
+```sql
+-- Critical indexes for HSA application
+CREATE INDEX idx_user_profiles_user_id ON user_profiles(user_id);
+CREATE INDEX idx_user_profiles_coverage_type ON user_profiles(coverage_type);
+CREATE INDEX idx_contributions_user_date ON contributions(user_id, contribution_date);
+CREATE INDEX idx_calculations_created_at ON calculations(created_at DESC);
+```
+
+**Query Optimization:**
+- Use prepared statements for repeated queries
+- Implement query result caching for IRS limits
+- Batch insert for performance test data
+- Connection pooling for concurrent access
+
+### Test Data Lifecycle
+
+1. **Setup Phase**:
+   - Run Alembic migrations
+   - Load base fixture data
+   - Generate scenario-specific data
+   - Verify data integrity
+
+2. **Test Execution**:
+   - Isolate test data per test case
+   - Use database transactions
+   - Mock external service calls
+   - Capture data state for debugging
+
+3. **Cleanup Phase**:
+   - Rollback transactions
+   - Clear temporary data
+   - Reset sequences/auto-increments
+   - Verify no data leakage
+
+4. **Maintenance**:
+   - Version control fixture files
+   - Update mock data for new features
+   - Archive old test scenarios
+   - Monitor test data growth
 
 [1]: https://www.fidelity.com/learning-center/smart-money/hsa-contribution-limits?utm_source=chatgpt.com "HSA contribution limits and eligibility rules for 2025 and 2026"
 [2]: https://www.irs.gov/pub/irs-drop/rp-24-25.pdf?utm_source=chatgpt.com "Rev. Proc. 2024-25"

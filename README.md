@@ -1,8 +1,8 @@
 # HSA Contribution Planner - Context Engineering Demo
 
-A comprehensive demonstration of Context Engineering principles applied to building an HSA (Health Savings Account) Contribution Planner using LangGraph multi-agent orchestration, Test-Driven Development, and MCP (Model Context Protocol) integration.
+A comprehensive demonstration of Context Engineering principles applied to building an HSA (Health Savings Account) Contribution Planner using LangGraph multi-agent orchestration, Test-Driven Development, DRY (Don't Repeat Yourself) methodology, and MCP (Model Context Protocol) integration.
 
-> **This project showcases how Context Engineering with proper tooling enables AI assistants to build complex, production-ready applications in a single pass.**
+> **This project showcases how Context Engineering with DRY principles and proper tooling enables AI assistants to build complex, production-ready applications in a single pass.**
 
 ## 🎯 Project Overview
 
@@ -93,6 +93,7 @@ This includes:
 The project enforces strict guidelines:
 
 - **Test-Driven Development**: Write tests first, always
+- **DRY Principles**: Don't Repeat Yourself - comprehensive code reuse strategy
 - **MCP Integration**: Use Memory Bank and Knowledge Graph throughout
 - **Directory Structure**: All code in `/use-case` folder
 - **Coverage Requirements**: Minimum 80%, target 95%
@@ -179,7 +180,100 @@ mcp__knowledge-graph__create_entities([{
 ### Additional MCP Tools
 - **Playwright**: Automated testing of conversational UI
 - **Perplexity**: Latest LangGraph documentation and patterns
+- **Grep MCP**: GitHub pattern mining for code reuse discovery
 - **IDE**: Code diagnostics before test execution
+
+## 🔄 DRY (Don't Repeat Yourself) Principles
+
+### Core DRY Philosophy
+
+The project implements comprehensive DRY principles to eliminate code duplication and promote pattern reuse:
+
+- **Pattern Recognition First**: Search existing patterns before writing new code
+- **Code Reuse Over Creation**: Extend existing functions/classes instead of duplicates
+- **Single Source of Truth**: Centralize configurations, constants, and repeated logic
+- **Shared Utilities**: Extract common functionality to reusable modules
+
+### DRY Implementation Strategy
+
+#### 1. Pattern Discovery Workflow
+```bash
+# Before coding, search for existing patterns
+rg "[functionality]" src/ --type py
+grep -r "pattern_name" src/
+
+# External pattern validation via Grep MCP
+{"query": "[feature] implementation", "language": ["Python"], "path": ["src/", "utils/"]}
+```
+
+#### 2. Anti-Duplication Architecture
+```python
+# ✅ DO: Centralized configuration
+# config/hsa_limits.py
+HSA_LIMITS_2025 = {
+    'self_only': 4300,
+    'family': 8550,
+    'catch_up': 1000
+}
+
+# ✅ DO: Shared utility functions
+# utils/calculations.py
+def calculate_remaining_contribution(ytd: float, annual_limit: float) -> float:
+    """DRY: Used by all agents for remaining contribution calculation"""
+    return max(0, annual_limit - ytd)
+
+# ✅ DO: Repository pattern inheritance
+class BaseRepository(ABC):
+    # Common database operations
+    
+class UserProfileRepository(BaseRepository):
+    # Specific user operations extending base
+```
+
+#### 3. DRY Validation Gates
+
+The project includes automated DRY compliance checking:
+
+```bash
+# Check for code duplication
+rg -C 3 "def.*calculate.*contribution" src/
+rg "import.*config" src/
+
+# Validate single source of truth
+find src/ -name "*.py" -exec grep -l "HSA_LIMIT\|4300\|8550" {} \;
+# Should only return config files
+```
+
+### DRY Quality Metrics
+
+- **Code reuse ratio**: >70% of functionality extends existing patterns
+- **Duplication detection**: <5% duplicate code blocks >3 lines
+- **Configuration centralization**: 100% of config values in single source
+- **Pattern consistency**: >90% adherence to established patterns
+
+### DRY in Frontend Components
+
+```typescript
+// ✅ DO: Compound component pattern
+const Form = ({ children, onSubmit }) => (
+  <form onSubmit={onSubmit} className="space-y-6">{children}</form>
+)
+
+Form.Field = ({ label, error, children }) => (
+  <div className="space-y-2">
+    <Label>{label}</Label>
+    {children}
+    {error && <p className="text-destructive">{error}</p>}
+  </div>
+)
+
+// Usage across multiple forms (DRY)
+<Form onSubmit={handleSubmit}>
+  <Form.Field label="Email" error={errors.email}>
+    <Input {...emailProps} />
+  </Form.Field>
+</Form>
+```
 
 ## 🧪 Test-Driven Development
 
@@ -212,9 +306,10 @@ mcp__knowledge-graph__create_entities([{
 ### Context Engineering Principles
 
 1. **Comprehensive Context**: Include all documentation, examples, and patterns
-2. **Validation Gates**: Automated checks at each step
-3. **Self-Correcting**: Error patterns guide fixes
-4. **One-Pass Success**: Complete context enables single-pass implementation
+2. **DRY-First Development**: Search and reuse before creating new code
+3. **Validation Gates**: Automated checks at each step including DRY compliance
+4. **Self-Correcting**: Error patterns guide fixes and refactoring opportunities
+5. **One-Pass Success**: Complete context enables single-pass implementation
 
 ### PRP Quality Metrics
 
@@ -224,7 +319,26 @@ mcp__knowledge-graph__create_entities([{
 
 ### Common Patterns
 
-1. **Agent State Management**
+1. **DRY Agent Architecture**
+   ```python
+   # Base agent with shared functionality
+   class BaseAgent(ABC):
+       def __init__(self, config: HSAConfig):
+           self.config = config
+           self.validator = HSAValidator()
+       
+       @abstractmethod
+       def process(self, state: ConversationState) -> dict:
+           pass
+   
+   # Specific agents extending base
+   class UserInputAgent(BaseAgent):
+       def process(self, state: ConversationState) -> dict:
+           # Agent-specific logic using shared utilities
+           pass
+   ```
+
+2. **Agent State Management**
    ```python
    class ConversationState(TypedDict):
        user_profile: dict
@@ -232,16 +346,27 @@ mcp__knowledge-graph__create_entities([{
        current_agent: str
    ```
 
-2. **Error Recovery**
+3. **Shared Utilities Pattern**
+   ```python
+   # Single source of truth for calculations
+   from src.utils.calculations import calculate_remaining_contribution
+   from src.config.hsa_limits import HSA_LIMITS_2025
+   from src.validators.hsa_validators import validate_coverage_type
+   ```
+
+4. **Error Recovery**
    - Path errors: Move files to `/use-case`
    - Test failures: Review expectations
    - Coverage gaps: Add edge case tests
+   - DRY violations: Extract duplicated code to utilities
 
 ## 🔗 Resources
 
 ### Project Documentation
-- [CLAUDE.md](/CLAUDE.md) - Global project rules
-- [PLANNING.md](/PLANNING.md) - HSA planner specifications
+- [CLAUDE.md](/CLAUDE.md) - Global project rules with DRY principles
+- [PLANNING.md](/PLANNING.md) - HSA planner specifications with DRY architecture
+- [Optimization Principles](/docs/optimization-principles.md) - LEVER framework with DRY methodology
+- [Frontend DRY Guidelines](/docs/front-end-optimization-principles.md) - Component reuse patterns
 - [MCP Setup Guide](/mcp-integration/docs/mcp-setup.md)
 
 ### External Resources

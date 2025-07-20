@@ -4,11 +4,11 @@
 
 Generate an EXTREMELY COMPREHENSIVE and ULTRA-DETAILED PRP for feature implementation with exhaustive research. This PRP must be so detailed that an AI agent can implement the entire feature in a single pass with zero ambiguity. 
 
-**CRITICAL**: Spend extensive time on research - the user has abundant tokens and wants maximum detail. Read EVERY relevant file, extract EVERY pattern, document EVERY decision, and include EVERY edge case.
+**CRITICAL**: Spend extensive time on research - the user wants maximum detail. Read EVERY relevant file, extract EVERY pattern, document EVERY decision, and include EVERY edge case.
 
 The AI agent only gets the context you are appending to the PRP and training data. Your research must be EXHAUSTIVE and leave nothing to chance. Include full code snippets, complete examples, detailed explanations, and comprehensive patterns.
 
-## Phase 1: COMPREHENSIVE PRE-RESEARCH (MANDATORY - 30+ minutes)
+## Phase 1: COMPREHENSIVE PRE-RESEARCH (MANDATORY)
 
 ### 1.1 Complete Documentation Analysis
 **READ EVERY KEY DOCUMENTATION FILE IN FULL:**
@@ -35,7 +35,7 @@ The AI agent only gets the context you are appending to the PRP and training dat
 - `mcp__knowledge-graph__open_nodes([...])` - Open all related nodes
 - Map complete relationship graph of existing components
 
-## Phase 2: EXHAUSTIVE RESEARCH PROCESS (MANDATORY - 45+ minutes)
+## Phase 2: EXHAUSTIVE RESEARCH PROCESS (MANDATORY)
 
 ### 2.1 **Deep Codebase Analysis & Pattern Mining (20+ searches)**
    - **DRY Search Strategy**: Before designing new code, search for reusable patterns
@@ -394,9 +394,9 @@ pytest tests/test_cleanup.py -v
 - [ ] Included 50+ code snippets?
 - [ ] Defined 100+ micro-tasks?
 
-*** CRITICAL: SPEND 2+ HOURS ON RESEARCH BEFORE WRITING THE PRP ***
+*** CRITICAL: SPEND TIME ON RESEARCH BEFORE WRITING THE PRP ***
 
-*** ULTRATHINK FOR 30+ MINUTES ABOUT COMPLETENESS ***
+*** ULTRATHINK ABOUT COMPLETENESS ***
 
 *** THE PRP MUST BE SO DETAILED THAT IMPLEMENTATION IS MECHANICAL ***
 
@@ -454,7 +454,7 @@ Save as: `PRPs/{feature-name}.md`
 - **1-3**: Insufficient context for one-pass implementation
 
 ### Detailed Quality Metrics:
-- Research Time: [X hours] (minimum 2 hours)
+- Research Time: [X minutes]
 - Documentation Files Read: [X/5] (must be 5/5)
 - Grep MCP Queries: [X] (minimum 50)
 - Patterns Documented: [X] (minimum 50)
@@ -484,7 +484,7 @@ Score: [X/10] - Justify your score based on the rubric above
 3. Did you document 100+ patterns and examples?
 4. Did you create 100+ detailed micro-tasks?
 5. Is the PRP 5000+ lines of implementation detail?
-6. Did you spend 2+ hours on research?
+6. Did you spend comprehensive on research?
 7. Did you include code for EVERY component?
 8. Did you specify EVERY test case?
 9. Did you document EVERY edge case?
@@ -492,4 +492,4 @@ Score: [X/10] - Justify your score based on the rubric above
 
 **CRITICAL**: The goal is ZERO ambiguity, COMPLETE context, EXHAUSTIVE detail. A PRP scoring below 10 is UNACCEPTABLE - continue research until perfect.
 
-**FINAL REMINDER**: The user has ABUNDANT tokens and wants MAXIMUM detail. Do NOT hold back on research or documentation. Make this the most comprehensive PRP ever created.
+**FINAL REMINDER**: The user wants MAXIMUM detail. Do NOT hold back on research or documentation. Make this the most comprehensive PRP ever created.

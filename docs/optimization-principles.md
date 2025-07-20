@@ -53,6 +53,13 @@ Before writing any code, complete this extended thinking exercise:
 - [ ] Can I add fields to an existing query return?
 - [ ] Can I enhance an existing hook with new computed properties?
 - [ ] Can I modify an existing component with conditional rendering?
+
+## External Pattern Research (Grep MCP)
+- [ ] Search GitHub for similar implementations: `{"query": "[feature] implementation", "language": ["TypeScript", "Python"]}`
+- [ ] Find optimization patterns: `{"query": "[domain] optimization", "language": ["JavaScript", "Python"], "path": ["src/", "lib/"]}`
+- [ ] Discover testing approaches: `{"query": "[feature] test", "language": ["TypeScript"], "path": ["test/", "spec/"]}`
+- [ ] Validate architecture decisions: `{"query": "[framework] [pattern]", "useRegexp": true}`
+- [ ] Research performance solutions: `{"query": "performance OR optimization", "language": ["TypeScript"]}`
 ```
 
 ### 2. Complexity Assessment (5-10 minutes)
@@ -235,9 +242,11 @@ Use this scoring system (inspired by [Extended Thinking with Tool Use](https://g
 Inspired by [Extended Thinking Tips](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/extended-thinking-tips):
 
 **Pass 1: Discovery (No Code)**
-- Find all related existing code
-- Document current patterns
-- Identify extension points
+- Find all related existing code (local codebase)
+- Search external implementations with Grep MCP for pattern validation
+- Document current patterns and discovered alternatives
+- Identify extension points and optimization opportunities
+- Compare local vs external approaches
 
 **Pass 2: Design (Minimal Code)**
 - Write interface changes only
@@ -289,6 +298,36 @@ export const getUserStatus = query({
   }
 })
 ```
+
+### 3. External Pattern Research with Grep MCP
+
+Use Grep MCP to discover proven patterns from millions of GitHub repositories before implementing new solutions:
+
+#### Pattern Discovery Workflow
+```markdown
+1. **Feature Research**
+   - Search for similar implementations: `{"query": "user subscription management", "language": ["TypeScript"], "path": ["src/"]}`
+   - Find optimization examples: `{"query": "query optimization", "language": ["JavaScript"], "useRegexp": true}`
+
+2. **Architecture Validation**
+   - Research frameworks: `{"query": "convex OR supabase", "language": ["TypeScript"], "path": ["hooks/", "api/"]}`
+   - Find state management patterns: `{"query": "useState OR useQuery", "language": ["TypeScript"]}`
+
+3. **Performance Research**
+   - Discover optimization techniques: `{"query": "performance improvement", "language": ["TypeScript", "JavaScript"]}`
+   - Find caching strategies: `{"query": "cache OR memoization", "language": ["TypeScript"]}`
+
+4. **Testing Pattern Mining**
+   - Research test patterns: `{"query": "test OR spec", "language": ["TypeScript"], "path": ["test/", "__tests__/"]}`
+   - Find mock strategies: `{"query": "mock OR fixture", "language": ["TypeScript"]}`
+```
+
+#### Integration with LEVER Framework
+- **L**everage: Use Grep MCP to find existing patterns before creating
+- **E**xtend: Research how others have extended similar systems
+- **V**erify: Validate your approach against discovered implementations
+- **E**liminate: Find and eliminate anti-patterns discovered in research
+- **R**educe: Use discovered optimizations to reduce complexity
 
 ## 📈 Real-World Example: Trial Flow Optimization
 

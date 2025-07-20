@@ -70,7 +70,12 @@ Implement a feature using the PRP file while following all CLAUDE.md rules.
    - Verify TDD task ordering (tests before implementation)
    - Ensure all paths use `/workspaces/hackathon_demo/use-case`
    - Understand all context and requirements
+   - **Validate with Grep MCP pattern research**:
+     - Verify architecture approach: `{"query": "[domain] [framework]", "language": ["Python"]}`
+     - Check testing strategies: `{"query": "pytest OR testing", "language": ["Python"], "path": ["tests/"]}`
+     - Validate database patterns: `{"query": "sqlalchemy OR database", "language": ["Python"]}`
    - Use `mcp__perplexity-ask__perplexity_ask` for any missing documentation
+   - Cross-reference Perplexity documentation with Grep pattern discoveries
 
 2. **ULTRATHINK & Plan with TodoWrite**
    - Create comprehensive plan following TDD: Test → Implement → Refactor
@@ -197,7 +202,14 @@ Implement a feature using the PRP file while following all CLAUDE.md rules.
       pytest tests/test_cleanup.py -v
       ```
    
-   d) **Fix Any Failures**
+   f) **External Pattern Validation** (Grep MCP)
+      - Verify implementation follows discovered patterns
+      - Compare architecture decisions with external research
+      - Validate testing approach against best practices found
+      - Check for missed optimization opportunities from pattern research
+      - Document any deviations from discovered patterns with justification
+   
+   g) **Fix Any Failures**
       - Read error messages carefully
       - Apply fixes following TDD cycle
       - Re-run validation until all pass

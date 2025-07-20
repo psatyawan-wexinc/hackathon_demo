@@ -30,6 +30,13 @@
 - **IDE MCP**: Enhance code analysis and execution
   - Use `mcp__ide__getDiagnostics` to identify code issues before running tests
   - Use `mcp__ide__executeCode` for Jupyter notebook interactions and data analysis
+- **Grep MCP**: Search millions of GitHub repositories for code patterns and implementations
+  - Use for discovering existing solutions before creating new code (supports LEVER framework)
+  - Search with language/file filters: `{"query": "langgraph agent", "language": ["Python"], "path": ["src/"]}`
+  - Find optimization patterns: `{"query": "performance optimization", "language": ["TypeScript", "Python"]}`
+  - Research testing patterns: `{"query": "pytest fixtures", "language": ["Python"], "path": ["tests/"]}`
+  - Validate architecture approaches against real-world implementations
+  - Essential for Pattern Recognition Phase and Three-Pass Discovery approach
 
 ### 🔄 Project Awareness & Context
 - **Always read `PLANNING.md`** at the start to understand architecture and constraints.
@@ -60,7 +67,7 @@
 - **Modular Context**: Keep files focused, maintain structure diagram, use full paths in docs
 - **Verification Pattern**: Read → Understand → Plan → Execute → Verify → Test → Document → Update MCP
 - **Session Boundaries**: Start with PLANNING/TASK review, end with summary, never assume old context
-- **Search Before Assuming**: Use grep/search tools, cross-reference dependencies, verify imports exist
+- **Search Before Assuming**: Use grep/search tools for local code, Grep MCP for external patterns, cross-reference dependencies, verify imports exist
 
 ### 🧱 Code Structure & Modularity
 - **500 line limit per file** - refactor if approaching.

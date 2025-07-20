@@ -16,15 +16,17 @@
       "Bash(python:*)",
       "Bash(python -m pytest:*)",
       "Bash(python3 -m pytest:*)",
-      "WebFetch(domain:docs.anthropic.com)"
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:vercel.com)",
+      "Bash(claude mcp:*)"
     ],
     "deny": []
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "playwright",
     "knowledge-graph",
     "memory-bank",
     "perplexity-ask"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

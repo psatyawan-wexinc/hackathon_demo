@@ -93,6 +93,30 @@ These examples demonstrate expected agent choreography and UI output for impleme
   - Authentication and authorization flows
   - Data persistence layer specifications
 
+### GitHub Pattern Research (Grep MCP)
+
+**HSA & Financial Calculation Patterns**
+* Search for existing HSA implementations: `{"query": "HSA calculation OR health savings", "language": ["Python", "JavaScript"]}`
+* Find IRS compliance patterns: `{"query": "IRS calculation OR tax calculation", "language": ["Python"]}`
+* Research proration logic: `{"query": "proration OR pro-rata calculation", "language": ["Python", "JavaScript"]}`
+* Discover financial validation patterns: `{"query": "financial validation OR money calculation", "language": ["Python"]}`
+
+**LangGraph & Multi-Agent Implementation Research**  
+* Find LangGraph agent examples: `{"query": "langgraph OR langchain agent", "language": ["Python"], "path": ["src/", "agents/"]}`
+* Research multi-agent orchestration: `{"query": "multi-agent OR agent workflow", "language": ["Python"], "useRegexp": true}`
+* Discover state management patterns: `{"query": "state management OR conversation state", "language": ["Python"]}`
+* Find agent communication protocols: `{"query": "agent communication OR message passing", "language": ["Python"]}`
+
+**Conversational UI & Chat Implementation**
+* Research Streamlit chat patterns: `{"query": "streamlit chat OR conversational", "language": ["Python"], "path": ["ui/", "app/"]}`
+* Find form-based conversation flows: `{"query": "form conversation OR step-by-step", "language": ["Python", "JavaScript"]}`
+* Discover user input validation: `{"query": "user input validation", "language": ["Python", "TypeScript"]}`
+
+**Testing & Quality Assurance Patterns**
+* Find agent testing strategies: `{"query": "agent test OR langgraph test", "language": ["Python"], "path": ["tests/"]}`
+* Research financial calculation testing: `{"query": "financial test OR calculation test", "language": ["Python"]}`
+* Discover mock data for financial apps: `{"query": "financial mock OR financial fixture", "language": ["Python"]}`
+
 ## OTHER CONSIDERATIONS:
 
 ### Business Logic Considerations

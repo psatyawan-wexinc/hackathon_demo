@@ -20,11 +20,13 @@ The AI agent only gets the context you are appending to the PRP and training dat
 ## Research Process
 
 1. **Codebase Analysis**
-   - Search for similar features/patterns in the codebase
+   - Search for similar features/patterns in the local codebase
+   - Use Grep MCP to discover external implementations: `{"query": "[feature] implementation", "language": ["Python", "TypeScript"]}`
+   - Compare local vs external patterns for optimization opportunities
    - Identify files to reference in PRP (include file:line_number format)
-   - Note existing conventions to follow
-   - Check test patterns for validation approach
-   - **CRITICAL**: Verify code optimization opportunities per CLAUDE.md
+   - Note existing conventions to follow and external best practices discovered
+   - Check test patterns for validation approach using both local and Grep MCP searches
+   - **CRITICAL**: Verify code optimization opportunities per CLAUDE.md using LEVER framework with external validation
 
 2. **Mock Data & Database Research** (MANDATORY)
    - Identify data models and database schema requirements
@@ -37,21 +39,32 @@ The AI agent only gets the context you are appending to the PRP and training dat
 
 3. **Test Strategy Research** (MANDATORY - TDD)
    - Identify existing test patterns in `/tests` or relevant test directories
-   - Document test structure that mirrors app structure
+   - **Use Grep MCP to discover external testing patterns**:
+     - TDD examples: `{"query": "test-driven OR tdd", "language": ["Python"], "path": ["tests/", "test/"]}`
+     - Database testing: `{"query": "pytest database OR sqlalchemy test", "language": ["Python"]}`
+     - Mock strategies: `{"query": "mock OR fixture OR factory", "language": ["Python"], "path": ["tests/"]}`
+     - Agent testing: `{"query": "agent test OR langgraph test", "language": ["Python"]}`
+   - Document test structure that mirrors app structure (validate with external examples)
    - Plan for: Happy path, Edge cases, Failure cases, Property-based tests
-   - Include specific test examples with expected outcomes
-   - Design database fixtures and test data scenarios
-   - Plan test isolation strategy (transactions, cleanup)
-   - Mock external dependencies and services
+   - Include specific test examples with expected outcomes (from both local and external research)
+   - Design database fixtures and test data scenarios using discovered best practices
+   - Plan test isolation strategy (transactions, cleanup) based on proven patterns
+   - Mock external dependencies and services following industry standards
 
 4. **External Research with MCP Tools**
    - Use `mcp__perplexity-ask__perplexity_ask` for latest documentation and best practices
+   - **Use Grep MCP for GitHub pattern mining**:
+     - Architecture research: `{"query": "langgraph OR multi-agent", "language": ["Python"], "path": ["src/", "lib/"]}`
+     - Database patterns: `{"query": "sqlalchemy alembic", "language": ["Python"], "path": ["models/", "db/"]}`
+     - Testing strategies: `{"query": "pytest factory-boy", "language": ["Python"], "path": ["tests/", "test/"]}`
+     - Mock data patterns: `{"query": "faker factory", "language": ["Python"], "useRegexp": true}`
+     - Performance optimizations: `{"query": "optimization OR performance", "language": ["Python"]}`
    - Search for implementation examples with specific version compatibility
-   - Document library quirks, version issues, and gotchas
+   - Document library quirks, version issues, and gotchas from both Perplexity and Grep research
    - Include specific URLs with section anchors (e.g., `#configuration`)
-   - Research mock data generation best practices
-   - Find SQLAlchemy/Alembic patterns for the specific use case
-   - Look up Factory Boy or similar library documentation
+   - Cross-reference Perplexity documentation with Grep implementation examples
+   - Find SQLAlchemy/Alembic patterns for the specific use case using both research methods
+   - Look up Factory Boy or similar library documentation and real-world usage patterns
 
 5. **User Clarification** (if needed)
    - Specific patterns to mirror and where to find them?

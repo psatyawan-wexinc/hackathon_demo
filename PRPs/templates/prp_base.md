@@ -149,6 +149,22 @@ Build a production-ready HSA Contribution Planner with:
 
 - url: https://gradio.app/
   why: Alternative UI framework with chat components
+
+# GITHUB PATTERN MINING (Grep MCP)
+- search: {"query": "langgraph multi-agent", "language": ["Python"], "path": ["src/", "lib/"]}
+  why: Real-world LangGraph agent orchestration patterns and architectures
+
+- search: {"query": "HSA calculation OR IRS limits", "language": ["Python", "JavaScript"]}
+  why: Financial compliance implementations and calculation patterns
+
+- search: {"query": "pytest factory-boy faker", "language": ["Python"], "path": ["tests/"]}
+  why: Comprehensive testing patterns with mock data generation
+
+- search: {"query": "sqlalchemy alembic migration", "language": ["Python"], "path": ["models/", "db/"]}
+  why: Database schema management and migration patterns
+
+- search: {"query": "streamlit gradio conversational", "language": ["Python"]}
+  why: Conversational UI implementation patterns and best practices
 ```
 
 ### Current Codebase Tree (Initial state)
@@ -421,6 +437,40 @@ def limit_calc_agent(state: ConversationState):
             "current_agent": "user_input"  # Fall back to data collection
         }
 ```
+
+### External Pattern Validation (Grep MCP)
+
+Before implementing any components, validate architectural decisions against proven patterns from millions of GitHub repositories:
+
+#### Pre-Implementation Research Checklist
+```markdown
+# Agent Architecture Validation
+- [ ] Search for similar LangGraph implementations: `{"query": "langgraph OR multi-agent system", "language": ["Python"], "path": ["src/"]}`
+- [ ] Find agent orchestration patterns: `{"query": "agent OR workflow", "language": ["Python"], "useRegexp": true}`
+- [ ] Research state management approaches: `{"query": "state management OR context", "language": ["Python"]}`
+
+# Financial Domain Research  
+- [ ] Find HSA/financial calculation patterns: `{"query": "HSA OR financial calculation", "language": ["Python", "JavaScript"]}`
+- [ ] Research IRS compliance implementations: `{"query": "IRS OR tax calculation", "language": ["Python"]}`
+- [ ] Discover proration logic examples: `{"query": "proration OR pro-rata", "language": ["Python"]}`
+
+# Testing Strategy Validation
+- [ ] Find comprehensive testing patterns: `{"query": "pytest OR testing", "language": ["Python"], "path": ["tests/", "test/"]}`
+- [ ] Research mock data strategies: `{"query": "factory OR faker OR mock", "language": ["Python"]}`
+- [ ] Discover database testing approaches: `{"query": "database test OR sqlalchemy test", "language": ["Python"]}`
+
+# Performance & Optimization
+- [ ] Research optimization techniques: `{"query": "performance optimization", "language": ["Python", "JavaScript"]}`
+- [ ] Find caching strategies: `{"query": "cache OR memoization", "language": ["Python"]}`
+- [ ] Discover async patterns: `{"query": "async OR asyncio", "language": ["Python"]}`
+```
+
+#### Pattern Integration Strategy
+1. **Discovery Phase**: Use Grep MCP to find 3-5 similar implementations
+2. **Analysis Phase**: Compare approaches and identify best practices
+3. **Validation Phase**: Ensure chosen approach aligns with discovered patterns
+4. **Implementation Phase**: Apply lessons learned from external research
+5. **Optimization Phase**: Integrate performance patterns discovered
 
 ## Implementation Blueprint
 

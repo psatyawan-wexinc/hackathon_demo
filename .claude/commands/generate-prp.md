@@ -19,9 +19,21 @@ The AI agent only gets the context you are appending to the PRP and training dat
 
 ## Research Process
 
-1. **Codebase Analysis**
-   - Search for similar features/patterns in the local codebase
-   - Use Grep MCP to discover external implementations: `{"query": "[feature] implementation", "language": ["Python", "TypeScript"]}`
+1. **Codebase Analysis & DRY Pattern Discovery**
+   - **DRY Search Strategy**: Before designing new code, search for reusable patterns
+     - Local pattern search: `rg "[functionality] OR [pattern]" src/ --type py`
+     - External pattern mining: `{"query": "[feature] implementation", "language": ["Python", "TypeScript"]}`
+     - Utility pattern discovery: `{"query": "utility OR helper", "language": ["Python"], "path": ["utils/", "lib/"]}`
+   - **Code Reuse Opportunity Assessment**:
+     - Search for similar business logic that can be extended
+     - Identify common validation patterns that can be shared
+     - Find database operations that can use repository pattern
+     - Locate configuration patterns for centralization
+   - **Anti-Duplication Analysis**:
+     - Document existing patterns to prevent recreation
+     - Note configuration sources to avoid duplication
+     - Identify test utilities that can be reused
+     - Map shared functionality for extension opportunities
    - Compare local vs external patterns for optimization opportunities
    - Identify files to reference in PRP (include file:line_number format)
    - Note existing conventions to follow and external best practices discovered
@@ -160,6 +172,10 @@ pytest tests/test_cleanup.py -v
 - [ ] SQLite database configured for development/testing
 - [ ] Test isolation and cleanup strategies defined
 - [ ] No real PII in test data (GDPR compliance)
+- [ ] **DRY Principles Applied**: All repeated code patterns identified and utilities planned
+- [ ] **Code Reuse Strategy**: Existing patterns extended instead of creating new code
+- [ ] **Single Source of Truth**: Configuration and constants centralized
+- [ ] **Shared Utilities**: Common functionality extracted to reusable modules
 
 ### Context Completeness
 - [ ] All research findings included or referenced

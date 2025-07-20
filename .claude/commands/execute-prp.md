@@ -124,35 +124,75 @@ Implement a feature using the PRP file while following all CLAUDE.md rules.
       - Run tests to ensure they fail: `pytest {test_file} -v`
       - Track: `mcp__memory-bank__track_progress("TDD", "Created failing tests with mock data for {component}")`
    
-   b) **Implement Code with Data Integration**
+   b) **Implement Code with DRY Validation & Pattern Reuse**
+      - **Before writing any code**: Search for existing patterns to extend
+        ```bash
+        # Search for similar functionality
+        rg "similar_functionality" src/ --type py
+        grep -r "pattern_name" src/
+        ```
+      - **DRY Implementation Strategy**:
+        - Extend existing utilities instead of creating new ones
+        - Use shared validators for common input validation
+        - Implement repository pattern for data access (if not existing)
+        - Reuse configuration from centralized sources
       - Create implementation in `/workspaces/hackathon_demo/use-case/src/`
-      - Implement repository pattern for data access:
+      - **DRY Repository Pattern Implementation**:
         ```python
-        # src/repositories/user_profile_repository.py
+        # src/repositories/base_repository.py (DRY: Create once, extend everywhere)
+        from abc import ABC, abstractmethod
         from sqlalchemy.orm import Session
-        from src.models import UserProfile
         
-        class UserProfileRepository:
+        class BaseRepository(ABC):
             def __init__(self, session: Session):
                 self.session = session
             
-            def create(self, user_data: dict) -> UserProfile:
-                user = UserProfile(**user_data)
-                self.session.add(user)
+            def create(self, entity_data: dict):
+                entity = self.model_class(**entity_data)
+                self.session.add(entity)
                 self.session.commit()
-                return user
+                return entity
+            
+            def get_by_id(self, entity_id: str):
+                return self.session.query(self.model_class).filter_by(id=entity_id).first()
+        
+        # src/repositories/user_profile_repository.py (DRY: Extends base)
+        from src.models import UserProfile
+        from .base_repository import BaseRepository
+        
+        class UserProfileRepository(BaseRepository):
+            model_class = UserProfile
             
             def get_by_user_id(self, user_id: str) -> UserProfile:
                 return self.session.query(UserProfile).filter_by(user_id=user_id).first()
+        ```
+      - **DRY Utility Usage**:
+        ```python
+        # Use shared utilities instead of duplicating logic
+        from src.utils.calculations import calculate_remaining_contribution
+        from src.validators.hsa_validators import validate_coverage_type
+        from src.config.hsa_limits import HSA_LIMITS_2025
         ```
       - Follow patterns identified in PRP
       - Use `mcp__ide__getDiagnostics()` to catch issues early
       - Make tests pass with minimal code
       - Ensure proper database transaction handling
    
-   c) **Refactor**
+   c) **Refactor with DRY Principles**
+      - **DRY Refactoring Checklist**:
+        - [ ] Extract any repeated code blocks (>3 lines) into utilities
+        - [ ] Consolidate duplicate validation logic
+        - [ ] Move hard-coded values to configuration files
+        - [ ] Create shared base classes for similar components
+        - [ ] Abstract common patterns into decorators/mixins
+      - **Anti-Duplication Validation**:
+        ```bash
+        # Find potential duplications
+        rg -A 3 -B 3 "duplicate_pattern" src/
+        rg "TODO.*DRY" src/ # Find DRY improvement opportunities
+        ```
       - Improve code quality while keeping tests green
-      - Apply CLAUDE.md optimization principles
+      - Apply CLAUDE.md optimization principles  
       - Log decisions: `mcp__memory-bank__log_decision("Design Choice", "context", "decision")`
 
 4. **Progressive Validation**
@@ -202,14 +242,32 @@ Implement a feature using the PRP file while following all CLAUDE.md rules.
       pytest tests/test_cleanup.py -v
       ```
    
-   f) **External Pattern Validation** (Grep MCP)
+   f) **DRY Compliance Validation**
+      ```bash
+      cd /workspaces/hackathon_demo/use-case
+      
+      # Check for code duplication
+      rg -C 3 "def.*calculate.*contribution" src/ # Find calculation duplicates
+      rg -C 3 "validate.*" src/ # Find validation duplicates
+      rg "import.*config" src/ # Verify centralized config usage
+      
+      # Validate single source of truth
+      find src/ -name "*.py" -exec grep -l "HSA_LIMIT\|4300\|8550" {} \;
+      # Should only return config files
+      
+      # Check utility usage
+      rg "from.*utils" src/ # Verify utilities are being used
+      rg "class.*Repository" src/ # Verify repository pattern consistency
+      ```
+   
+   g) **External Pattern Validation** (Grep MCP)
       - Verify implementation follows discovered patterns
       - Compare architecture decisions with external research
       - Validate testing approach against best practices found
       - Check for missed optimization opportunities from pattern research
       - Document any deviations from discovered patterns with justification
    
-   g) **Fix Any Failures**
+   h) **Fix Any Failures**
       - Read error messages carefully
       - Apply fixes following TDD cycle
       - Re-run validation until all pass

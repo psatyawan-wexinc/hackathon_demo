@@ -78,6 +78,25 @@
 - **Use relative imports** within packages.
 - **Use python_dotenv** for environment variables.
 
+### 🔄 DRY Principles - MANDATORY
+- **Pattern Recognition First**: Before writing any code, search for existing patterns using local tools and Grep MCP
+- **Code Reuse Over Creation**: Extend existing functions/classes instead of creating duplicates
+- **Single Source of Truth**: Centralize configurations, constants, and repeated logic
+- **Shared Utilities**: Create common utility modules for repeated functionality
+- **Documentation DRY**: Reference existing documentation instead of duplicating content
+- **Test Pattern Reuse**: Use shared test utilities, fixtures, and factory patterns
+- **DRY Validation Workflow**:
+  - **Before coding**: Search existing codebase for similar patterns using `{"query": "[functionality] implementation", "language": ["Python"]}`
+  - **During development**: Extract common functionality into utilities
+  - **After implementation**: Refactor duplicated code into shared modules
+  - **Code review**: Validate no unnecessary duplication exists
+- **Anti-Duplication Patterns**:
+  - Extract repeated logic into functions
+  - Use inheritance for shared behavior
+  - Create mixins for cross-cutting concerns
+  - Implement factory patterns for object creation
+  - Use decorators for repeated functionality
+
 ### 🚀 Code Optimization
 - **Refer to `docs/optimization-principles.md`** for LEVER framework and optimization strategies
 - **Before creating new code**: Check if existing code can be extended (>50% reduction target)

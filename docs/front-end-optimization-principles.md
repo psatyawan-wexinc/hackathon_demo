@@ -171,6 +171,207 @@ This document outlines design principles and implementation guidelines for appli
 - **Radix UI primitives**: Base components for accessibility and behavior
 - **New-York style**: Default recommended style for new projects (deprecated "default" style)
 
+## 🔄 Component Reuse & DRY Architecture
+
+### DRY Component Patterns
+
+#### 1. Shared Component Library Structure
+```typescript
+// ✅ DO: Organized component hierarchy
+components/
+├── ui/           // shadcn/ui base components
+├── shared/       // Cross-application components
+├── forms/        // Reusable form components
+├── layouts/      // Page layout components
+└── features/     // Feature-specific components
+
+// Shared utility components
+export const Card = ({ children, className, ...props }) => (
+  <div className={cn("rounded-lg border bg-card p-6", className)} {...props}>
+    {children}
+  </div>
+)
+
+export const Section = ({ title, children, className }) => (
+  <div className={cn("space-y-4", className)}>
+    {title && <h2 className="text-xl font-semibold">{title}</h2>}
+    {children}
+  </div>
+)
+```
+
+#### 2. DRY Styling Approaches
+
+**Compound Component Pattern (DRY):**
+```typescript
+// ✅ DO: Reusable compound components
+const Form = ({ children, onSubmit, className }) => (
+  <form onSubmit={onSubmit} className={cn("space-y-6", className)}>
+    {children}
+  </form>
+)
+
+Form.Field = ({ label, error, children }) => (
+  <div className="space-y-2">
+    <Label>{label}</Label>
+    {children}
+    {error && <p className="text-sm text-destructive">{error}</p>}
+  </div>
+)
+
+Form.Submit = ({ children, loading, ...props }) => (
+  <Button type="submit" disabled={loading} {...props}>
+    {loading ? <Spinner /> : children}
+  </Button>
+)
+
+// Usage across multiple forms
+<Form onSubmit={handleSubmit}>
+  <Form.Field label="Email" error={errors.email}>
+    <Input {...emailProps} />
+  </Form.Field>
+  <Form.Submit loading={isSubmitting}>Submit</Form.Submit>
+</Form>
+```
+
+**CSS Utility DRY Pattern:**
+```typescript
+// ✅ DO: Centralized style utilities
+// utils/styles.ts
+export const buttonVariants = cva(
+  "inline-flex items-center justify-center rounded-md font-medium transition-colors",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        ghost: "hover:bg-accent hover:text-accent-foreground"
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3",
+        lg: "h-11 rounded-md px-8"
+      }
+    }
+  }
+)
+
+// Reused across all button components
+export const Button = ({ className, variant, size, ...props }) => (
+  <button 
+    className={cn(buttonVariants({ variant, size }), className)} 
+    {...props} 
+  />
+)
+```
+
+#### 3. Layout & Pattern Reuse
+
+**Page Layout DRY:**
+```typescript
+// ✅ DO: Standardized page layouts
+export const PageLayout = ({ 
+  title, 
+  subtitle, 
+  actions, 
+  children,
+  breadcrumbs 
+}) => (
+  <div className="container mx-auto px-4 py-8">
+    {breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
+    
+    <div className="flex items-center justify-between mb-8">
+      <div>
+        <h1 className="text-3xl font-bold">{title}</h1>
+        {subtitle && <p className="text-muted-foreground mt-2">{subtitle}</p>}
+      </div>
+      {actions && <div className="flex gap-2">{actions}</div>}
+    </div>
+    
+    <main>{children}</main>
+  </div>
+)
+
+// Reused across all pages
+<PageLayout 
+  title="Dashboard" 
+  subtitle="Manage your account"
+  actions={<Button>Create New</Button>}
+>
+  <DashboardContent />
+</PageLayout>
+```
+
+#### 4. Form Pattern DRY
+
+**Reusable Form Infrastructure:**
+```typescript
+// ✅ DO: Shared form patterns
+// hooks/useForm.ts
+export const useForm = (schema, onSubmit) => {
+  const [data, setData] = useState({})
+  const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      const validated = schema.parse(data)
+      await onSubmit(validated)
+    } catch (error) {
+      setErrors(error.flatten().fieldErrors)
+    } finally {
+      setLoading(false)
+    }
+  }
+  
+  return { data, setData, errors, loading, handleSubmit }
+}
+
+// Reused across all forms
+const ContactForm = () => {
+  const form = useForm(contactSchema, handleContact)
+  
+  return (
+    <Form onSubmit={form.handleSubmit}>
+      <Form.Field label="Email" error={form.errors.email}>
+        <Input 
+          value={form.data.email || ''} 
+          onChange={(e) => form.setData({...form.data, email: e.target.value})}
+        />
+      </Form.Field>
+    </Form>
+  )
+}
+```
+
+### DRY Validation & Quality Gates
+
+**Component Reuse Checklist:**
+- [ ] No duplicate styling patterns across components
+- [ ] Common layouts extracted to shared components
+- [ ] Form patterns standardized and reused
+- [ ] Button variants centralized with CVA
+- [ ] Typography scales consistent across components
+- [ ] Spacing follows 8pt grid system uniformly
+- [ ] Color patterns follow 60/30/10 rule consistently
+
+**Anti-Duplication Patterns:**
+- [ ] Search for existing components before creating new ones
+- [ ] Extract common patterns after 3rd similar usage
+- [ ] Use composition over inheritance for component reuse
+- [ ] Centralize all style utilities in shared modules
+- [ ] Document component usage patterns for team consistency
+
+**External Pattern Research for UI DRY:**
+```typescript
+// Research proven component patterns
+Grep MCP: {"query": "shadcn compound component", "language": ["TypeScript"], "path": ["components/"]}
+Grep MCP: {"query": "tailwind utility pattern", "language": ["TypeScript"], "path": ["styles/", "utils/"]}
+Grep MCP: {"query": "form pattern reuse", "language": ["TypeScript"], "path": ["hooks/", "forms/"]}
+```
+
 ## Visual Hierarchy
 
 ### Design Principles

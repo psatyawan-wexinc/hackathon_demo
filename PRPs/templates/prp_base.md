@@ -438,6 +438,33 @@ def limit_calc_agent(state: ConversationState):
         }
 ```
 
+### DRY Pattern Validation & Code Reuse Strategy
+
+**Pre-Implementation DRY Analysis:**
+```markdown
+# DRY Opportunity Assessment
+- [ ] Search for similar HSA logic: `{"query": "HSA contribution calculation", "language": ["Python"], "path": ["src/", "lib/"]}`
+- [ ] Find reusable financial utilities: `{"query": "financial calculation utility", "language": ["Python"], "path": ["utils/", "helpers/"]}`
+- [ ] Identify common validation patterns: `{"query": "input validation OR user validation", "language": ["Python"]}`
+- [ ] Check for existing agent patterns: `{"query": "langgraph agent pattern", "language": ["Python"], "path": ["agents/", "src/"]}`
+- [ ] Locate shared database utilities: `{"query": "repository pattern OR database utility", "language": ["Python"]}`
+```
+
+**Code Reuse Requirements:**
+1. **Before creating new functions**: Search for existing implementations that can be extended
+2. **Extract common patterns**: Any logic used 3+ times must be extracted to utilities
+3. **Single source configuration**: All IRS limits, dates, and constants in one place
+4. **Shared validation logic**: Common input validation extracted to validators module
+5. **Template reuse**: Agent response templates to ensure consistency
+
+**DRY Implementation Checklist:**
+- [ ] All IRS limits centralized in `config/hsa_limits.py`
+- [ ] Common calculation logic extracted to `utils/calculations.py`
+- [ ] Shared validation functions in `validators/hsa_validators.py`
+- [ ] Repository pattern for all database access
+- [ ] Agent message templates for consistent responses
+- [ ] Test utilities and fixtures shared across test files
+
 ### External Pattern Validation (Grep MCP)
 
 Before implementing any components, validate architectural decisions against proven patterns from millions of GitHub repositories:
@@ -473,6 +500,62 @@ Before implementing any components, validate architectural decisions against pro
 5. **Optimization Phase**: Integrate performance patterns discovered
 
 ## Implementation Blueprint
+
+### DRY Architecture Foundation
+
+**Shared Utility Modules (Create First):**
+```python
+# config/hsa_limits.py - Single source of truth
+HSA_LIMITS_2025 = {
+    'self_only': 4300,
+    'family': 8550,
+    'catch_up': 1000,
+    'age_threshold': 55
+}
+
+# utils/calculations.py - Reusable calculation logic
+def calculate_remaining_contribution(ytd: float, annual_limit: float) -> float:
+    """DRY: Used by all agents for remaining contribution calculation"""
+    return max(0, annual_limit - ytd)
+
+def calculate_per_period_amount(remaining: float, periods: int) -> float:
+    """DRY: Used across multiple planning scenarios"""
+    return remaining / periods if periods > 0 else 0
+
+# validators/hsa_validators.py - Shared validation logic
+def validate_coverage_type(coverage: str) -> bool:
+    """DRY: Used by all agents for coverage validation"""
+    return coverage in ['self-only', 'family']
+
+def validate_contribution_amount(amount: float, limit: float) -> bool:
+    """DRY: Used across input and calculation validation"""
+    return 0 <= amount <= limit
+```
+
+**DRY Code Organization:**
+```
+src/
+├── config/
+│   ├── hsa_limits.py        # DRY: Single source IRS data
+│   └── app_config.py        # DRY: Application constants
+├── utils/
+│   ├── calculations.py      # DRY: Shared calculation logic
+│   ├── formatters.py        # DRY: Response formatting
+│   └── date_utils.py        # DRY: Date handling utilities
+├── validators/
+│   └── hsa_validators.py    # DRY: Shared validation logic
+├── repositories/
+│   └── base_repository.py   # DRY: Common database operations
+├── agents/
+│   ├── base_agent.py        # DRY: Common agent functionality
+│   ├── user_input_agent.py  # Extends base patterns
+│   ├── limit_calc_agent.py  # Extends base patterns
+│   └── planner_agent.py     # Extends base patterns
+└── shared/
+    ├── exceptions.py        # DRY: Common exception classes
+    ├── message_types.py     # DRY: Agent communication schemas
+    └── templates.py         # DRY: Response templates
+```
 
 ### Data Models & Types
 

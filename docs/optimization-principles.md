@@ -8,13 +8,13 @@ This document establishes optimization principles based on successful patterns f
 
 > "The best code is no code. The second best code is code that already exists and works."
 
-### The LEVER Framework
+### The LEVER Framework (Enhanced with DRY)
 
-**L**everage existing patterns  
-**E**xtend before creating  
-**V**erify through reactivity  
-**E**liminate duplication  
-**R**educe complexity  
+**L**everage existing patterns (DRY: Reuse proven solutions)  
+**E**xtend before creating (DRY: Build on existing code)  
+**V**erify through reactivity (DRY: Validate against established patterns)  
+**E**liminate duplication (DRY: Single source of truth principle)  
+**R**educe complexity (DRY: Simplify through pattern consolidation)  
 
 ## 🧠 Extended Thinking Process
 
@@ -328,6 +328,146 @@ Use Grep MCP to discover proven patterns from millions of GitHub repositories be
 - **V**erify: Validate your approach against discovered implementations
 - **E**liminate: Find and eliminate anti-patterns discovered in research
 - **R**educe: Use discovered optimizations to reduce complexity
+
+## 🔄 DRY Methodology & Anti-Duplication Patterns
+
+### Core DRY Principles Applied to LEVER
+
+#### 1. Pattern Recognition & Reuse
+```markdown
+**Before Creating New Code:**
+- [ ] Search local codebase: `{"query": "[functionality] utility", "language": ["TypeScript", "Python"]}`
+- [ ] Find external patterns: `{"query": "[feature] implementation", "language": ["TypeScript"], "path": ["src/", "utils/"]}`
+- [ ] Identify reusable components: `{"query": "shared OR common", "language": ["TypeScript"], "path": ["components/", "lib/"]}`
+- [ ] Check existing utilities: `{"query": "helper OR utility", "language": ["Python", "TypeScript"]}`
+```
+
+#### 2. Anti-Duplication Decision Matrix
+| Scenario | DRY Action | LEVER Application |
+|----------|------------|-------------------|
+| Similar function exists | Extend existing function | **L**everage + **E**xtend |
+| Repeated logic found | Extract to utility module | **E**liminate duplication |
+| Common patterns discovered | Create shared library | **R**educe complexity |
+| Duplicate configurations | Centralize in single config | **E**liminate + **V**erify |
+| Repeated validations | Abstract into validators | **L**everage patterns |
+
+#### 3. DRY Refactoring Patterns
+
+**Extract Function Pattern:**
+```typescript
+// ❌ BEFORE: Duplicated validation logic
+function validateUser(user) {
+  if (!user.email || !user.email.includes('@')) throw new Error('Invalid email')
+  if (!user.name || user.name.length < 2) throw new Error('Invalid name')
+}
+
+function validateAdmin(admin) {
+  if (!admin.email || !admin.email.includes('@')) throw new Error('Invalid email')
+  if (!admin.name || admin.name.length < 2) throw new Error('Invalid name')
+  if (!admin.role) throw new Error('Invalid role')
+}
+
+// ✅ AFTER: DRY utility function
+function validateBaseFields(entity) {
+  if (!entity.email || !entity.email.includes('@')) throw new Error('Invalid email')
+  if (!entity.name || entity.name.length < 2) throw new Error('Invalid name')
+}
+
+function validateUser(user) { validateBaseFields(user) }
+function validateAdmin(admin) { validateBaseFields(admin); validateRole(admin.role) }
+```
+
+**Configuration DRY Pattern:**
+```typescript
+// ❌ BEFORE: Scattered configurations
+const API_URL = 'https://api.example.com' // in component A
+const BASE_URL = 'https://api.example.com' // in component B
+const SERVER_URL = 'https://api.example.com' // in utility C
+
+// ✅ AFTER: Single source of truth
+// config/app.ts
+export const AppConfig = {
+  API_BASE_URL: 'https://api.example.com',
+  TIMEOUTS: { default: 5000, upload: 30000 },
+  RETRY_ATTEMPTS: 3
+} as const
+```
+
+#### 4. DRY Validation Workflow
+
+**Pre-Implementation DRY Check:**
+```bash
+# 1. Search for existing implementations
+grep -r "similar-functionality" src/
+rg "pattern-name" --type ts --type js
+
+# 2. External pattern validation
+Grep MCP: {"query": "functionality implementation", "language": ["TypeScript"]}
+
+# 3. Identify extraction opportunities
+# Look for repeated code blocks > 3 lines
+# Check for similar function signatures
+# Find duplicate configuration values
+```
+
+**Post-Implementation DRY Audit:**
+```bash
+# 1. Find potential duplications
+rg -A 5 -B 5 "duplicate-pattern" src/
+rg "TODO.*DRY" src/ # Find DRY TODOs
+
+# 2. Measure code reuse ratio
+# Target: >70% of functionality should reuse existing patterns
+
+# 3. Validate single source of truth
+# All configurations centralized
+# No duplicate business logic
+# Shared utilities properly abstracted
+```
+
+#### 5. DRY Anti-Patterns to Avoid
+
+**Over-Abstraction Trap:**
+```typescript
+// ❌ DON'T: Abstract too early
+function createGenericValidator<T>(rules: ValidationRule<T>[]) {
+  // Complex generic system for 2 use cases
+}
+
+// ✅ DO: Extract when you have 3+ similar cases
+function validateEmail(email: string) { /* specific logic */ }
+function validatePhone(phone: string) { /* specific logic */ }
+// Extract common utility when pattern emerges
+```
+
+**False DRY:**
+```typescript
+// ❌ DON'T: Combine unrelated functionality
+function userAndProductProcessor() {
+  // Handles both user and product logic - not actually related
+}
+
+// ✅ DO: Keep related functionality together
+function processUser() { /* user-specific logic */ }
+function processProduct() { /* product-specific logic */ }
+```
+
+#### 6. DRY Metrics & Success Criteria
+
+**Measurable DRY Targets:**
+- Code reuse ratio: >70% of new functionality extends existing patterns
+- Duplication detection: <5% duplicate code blocks >3 lines
+- Utility usage: >80% of projects use shared utility functions
+- Configuration centralization: 100% of config values in single source
+- Pattern consistency: >90% adherence to established patterns
+
+**DRY Quality Gates:**
+- [ ] No duplicate business logic across components
+- [ ] All repeated utilities extracted to shared modules
+- [ ] Configuration values centralized and typed
+- [ ] Common patterns documented and reused
+- [ ] External pattern validation completed
+- [ ] Refactoring opportunities identified and addressed
 
 ## 📈 Real-World Example: Trial Flow Optimization
 

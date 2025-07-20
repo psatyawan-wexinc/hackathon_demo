@@ -117,6 +117,45 @@ These examples demonstrate expected agent choreography and UI output for impleme
 * Research financial calculation testing: `{"query": "financial test OR calculation test", "language": ["Python"]}`
 * Discover mock data for financial apps: `{"query": "financial mock OR financial fixture", "language": ["Python"]}`
 
+## DRY ARCHITECTURE CONSIDERATIONS:
+
+### Pattern Library & Reusable Components
+**HSA Calculation Pattern Reuse**
+* **Common IRS Logic**: Create shared utility for standard calculations:
+  - `hsa_limits.py` - Centralized 2025 limits and validation
+  - `proration_calculator.py` - Reusable mid-year calculations  
+  - `catch_up_validator.py` - Age-based eligibility logic
+* **Database Pattern Reuse**: 
+  - Repository pattern for all data access
+  - Shared SQLAlchemy models across agents
+  - Common transaction management utilities
+* **Agent Communication DRY**: 
+  - Standardized message schemas
+  - Shared state validation functions
+  - Common error handling patterns
+
+**External Pattern Mining for DRY (Grep MCP)**
+* **HSA Implementation Patterns**: `{"query": "HSA contribution calculation", "language": ["Python"], "path": ["src/", "lib/"]}`
+* **Agent Communication DRY**: `{"query": "langgraph state management", "language": ["Python"], "useRegexp": true}`
+* **Financial Validation Reuse**: `{"query": "financial validation utility", "language": ["Python"], "path": ["utils/"]}`
+* **Database Pattern Library**: `{"query": "repository pattern sqlalchemy", "language": ["Python"], "path": ["models/", "db/"]}`
+
+### Anti-Duplication Strategy
+**Centralized Configuration**
+* Single `config.py` for all IRS limits, dates, and constants
+* Shared environment variable management
+* Common logging configuration across all agents
+
+**Shared Business Logic**
+* Extract common validation rules into `validators/` module
+* Create shared exception classes in `exceptions.py`
+* Implement common audit logging patterns
+
+**Template and Factory Patterns**
+* Agent response templates to ensure consistent format
+* Data factory patterns for test fixture generation
+* Message builder utilities for inter-agent communication
+
 ## OTHER CONSIDERATIONS:
 
 ### Business Logic Considerations

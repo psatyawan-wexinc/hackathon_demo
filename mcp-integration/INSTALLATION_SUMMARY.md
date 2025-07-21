@@ -29,7 +29,7 @@ All MCP servers have been added to Claude Code with project scope:
 claude mcp add --scope project playwright -- npx @playwright/mcp@latest
 claude mcp add --scope project knowledge-graph -- npx -y mcp-knowledge-graph --memory-path ./config/credentials/knowledge_graph_memory.jsonl
 claude mcp add --scope project memory-bank -e MEMORY_BANK_PATH=/workspaces/hackathon_training/Context-Engineering-Intro/mcp-integration/config/credentials/memory_bank -- npx @movibe/memory-bank-mcp
-claude mcp add --scope project perplexity -e PERPLEXITY_API_KEY=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 -- npx -y @felores/perplexity-sonar-mcp
+claude mcp add --scope project perplexity -e PERPLEXITY_API_KEY=YOUR_PERPLEXITY_API_KEY_HERE -- npx -y @felores/perplexity-sonar-mcp
 ```
 
 ### 🧪 Testing Results

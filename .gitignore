@@ -14,3 +14,101 @@ mcp-integration/INSTALLATION_SUMMARY.md
 .mcp.json
 mcp-integration/.mcp.json
 .claude/config.json
+
+# ===========================================
+# COMPREHENSIVE SECRET & CREDENTIAL PROTECTION
+# ===========================================
+
+# Environment & Configuration Files
+.env
+.env.*
+!.env.example
+!.env.template
+*.env
+config.json
+config.*.json
+secrets.json
+credentials.json
+auth.json
+.secrets
+.credentials
+
+# API Keys & Tokens
+*api_key*
+*api-key*
+*secret_key*
+*secret-key*
+*access_key*
+*access-key*
+*private_key*
+*private-key*
+*auth_token*
+*auth-token*
+*bearer_token*
+*bearer-token*
+
+# Cloud Provider Credentials
+# AWS
+.aws/credentials
+.aws/config
+aws-credentials
+aws-config
+# Google Cloud
+gcloud_credentials.json
+service-account.json
+service_account.json
+.gcp/
+# Azure
+azure-credentials
+.azure/
+
+# Database & Service Credentials
+database.json
+db_config.json
+db-config.json
+redis.conf
+mongo.conf
+elasticsearch.yml
+
+# Framework-Specific Secret Files
+# Django
+local_settings.py
+# Flask
+instance/config.py
+# Node.js
+.npmrc
+# Docker
+.dockercfg
+.docker/config.json
+# Kubernetes
+*.kubeconfig
+kube-config
+
+# Development Tools
+.vscode/settings.json
+.idea/workspace.xml
+.idea/tasks.xml
+
+# SSH & Certificate Files
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+id_rsa*
+id_dsa*
+id_ed25519*
+id_ecdsa*
+known_hosts
+authorized_keys
+
+# Backup & Temporary Secret Files
+*.backup
+*.bak
+*.tmp
+*_backup
+*_bak
+secrets_*
+temp_*
+tmp_*

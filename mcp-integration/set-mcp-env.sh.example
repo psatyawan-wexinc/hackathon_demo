@@ -1,0 +1,12 @@
+#!/bin/bash
+# Source this file to set MCP environment variables
+# Copy this to set-mcp-env.sh and replace with your actual values
+
+export CLAUDE_MCP_CONFIG="/workspaces/hackathon_demo/mcp-integration/.mcp.json"
+export PERPLEXITY_API_KEY="YOUR_PERPLEXITY_API_KEY_HERE"
+export MEMORY_BANK_PATH="/workspaces/hackathon_demo/mcp-integration/config/credentials/memory_bank"
+
+echo "✅ MCP environment variables set"
+echo "CLAUDE_MCP_CONFIG: $CLAUDE_MCP_CONFIG"
+echo "PERPLEXITY_API_KEY: [HIDDEN]"
+echo "MEMORY_BANK_PATH: $MEMORY_BANK_PATH"

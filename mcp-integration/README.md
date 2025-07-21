@@ -22,83 +22,77 @@ A comprehensive solution for integrating multiple Model Context Protocol (MCP) s
 
 ## Quick Start
 
-### 1. Initial Setup
+### 🔒 Security Notice
+**API keys and sensitive configuration files are not tracked in this repository for security.**
+
+### 1. Copy Example Files
+Copy the example configuration files and replace placeholders with actual values:
 
 ```bash
-# Install MCP servers and dependencies
-npm run setup
+cd mcp-integration/
 
-# Configure credentials
-cp config/.env.example config/.env
-# Edit config/.env with your API keys
+# Copy example files to actual config files
+cp claude-settings.json.example claude-settings.json
+cp set-mcp-env.sh.example set-mcp-env.sh
+cp fix-mcp-config.sh.example fix-mcp-config.sh
+cp INSTALLATION_SUMMARY.md.example INSTALLATION_SUMMARY.md
 ```
 
-### 2. Configure Credentials
+### 2. Configure API Keys
+Replace `YOUR_PERPLEXITY_API_KEY_HERE` with your actual Perplexity API key in:
+- `claude-settings.json`
+- `set-mcp-env.sh`
+- `fix-mcp-config.sh`
+- `INSTALLATION_SUMMARY.md`
 
-Edit `config/.env` with your actual credentials:
-
-```env
-# Required: Perplexity API Key
-PERPLEXITY_API_KEY=your_actual_api_key_here
-
-# Optional: GitHub token for enhanced Playwright features
-GITHUB_TOKEN=your_github_token_here
-
-# Paths (auto-created if needed)
-KNOWLEDGE_GRAPH_MEMORY_PATH=./config/credentials/knowledge_graph_memory.jsonl
-MEMORY_BANK_PATH=./config/credentials/memory_bank
-```
-
-### 3. Validate & Launch
-
+### 3. Set Environment Variables
 ```bash
-# Validate all credentials
-npm run validate
+# Set MCP environment variables
+source set-mcp-env.sh
 
-# Launch all MCP servers
-npm run start
-
-# Configure Claude Code integration
-npm run configure
+# Verify variables are set
+env | grep -E "(PERPLEXITY|CLAUDE|MEMORY)"
 ```
 
-### 4. Verify Setup
-
+### 4. Test Configuration
 ```bash
-# Check server health
-npm run health
+# Run configuration fix if needed
+./fix-mcp-config.sh
 
-# In Claude Code, use:
-/mcp
+# Restart Claude Code to load MCP servers
+```
+
+### 5. Verify Setup
+```bash
+# Test MCP functionality in Claude Code
+# The servers should be automatically loaded
 ```
 
 ## Project Structure
 
 ```
 mcp-integration/
+├── README.md                           # Setup guide (this file)
+├── claude-settings.json.example        # MCP server configuration template
+├── set-mcp-env.sh.example             # Environment variables template  
+├── fix-mcp-config.sh.example          # Configuration fix script template
+├── INSTALLATION_SUMMARY.md.example    # Installation documentation template
 ├── config/
-│   ├── .env.example              # Credential template
-│   ├── mcp-servers.json         # Server configurations
-│   ├── claude-code-config.json  # Claude Code settings
-│   └── credentials/             # Git-ignored credential storage
-├── scripts/
-│   ├── setup-mcp.sh            # Initial setup script
-│   ├── launch-mcps.sh          # Auto-launch script
-│   ├── stop-mcps.sh            # Stop all servers
-│   ├── validate-creds.js       # Credential validation
-│   └── configure-claude-code.sh # Claude Code integration
-├── docs/
-│   └── mcp-setup.md            # Detailed setup guide
-└── package.json                # NPM configuration
+│   ├── mcp-servers.json               # Server configurations
+│   ├── claude-code-config.json        # Claude Code settings
+│   └── credentials/                   # Git-ignored credential storage
+├── scripts/                           # Setup and management scripts
+├── docs/                              # Additional documentation
+└── package.json                       # NPM configuration
 ```
 
 ## Security Features
 
 ### Credential Protection
-- All secrets stored in environment variables
-- `.env` files are git-ignored by default
-- Template files guide setup without exposing secrets
-- Runtime validation prevents startup with invalid credentials
+- ✅ **Never commit actual API keys** to version control
+- ✅ **Use environment variables** for all sensitive configuration  
+- ✅ **Keep example files for documentation** purposes
+- ✅ **Actual config files are in .gitignore** to prevent accidental commits
 
 ### Access Control
 - Project-scoped MCP configuration

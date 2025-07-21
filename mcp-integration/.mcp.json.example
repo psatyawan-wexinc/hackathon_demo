@@ -26,7 +26,7 @@
         "@movibe/memory-bank-mcp"
       ],
       "env": {
-        "MEMORY_BANK_PATH": "/workspaces/hackathon_training/mcp-integration/config/credentials/memory_bank"
+        "MEMORY_BANK_PATH": "/workspaces/hackathon_demo/mcp-integration/config/credentials/memory_bank"
       }
     },
     "perplexity-ask": {
@@ -37,7 +37,7 @@
         "server-perplexity-ask"
       ],
       "env": {
-        "PERPLEXITY_API_KEY": "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"
+        "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE"
       }
     }
   }

@@ -9,3 +9,8 @@ mcp-integration/claude-settings.json
 mcp-integration/set-mcp-env.sh
 mcp-integration/fix-mcp-config.sh
 mcp-integration/INSTALLATION_SUMMARY.md
+
+# Additional files with exposed API keys
+.mcp.json
+mcp-integration/.mcp.json
+.claude/config.json

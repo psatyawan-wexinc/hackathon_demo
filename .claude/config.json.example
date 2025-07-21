@@ -12,12 +12,12 @@
         "server-perplexity-ask"
       ],
       "env": {
-        "PERPLEXITY_API_KEY": "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"
+        "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE"
       }
     },
     "knowledge-graph": {
       "command": "npx",
-      "args": ["-y", "mcp-knowledge-graph", "--memory-path", "/workspaces/hackathon_training/Context-Engineering-Intro/mcp-integration/config/credentials/knowledge_graph_memory.jsonl"],
+      "args": ["-y", "mcp-knowledge-graph", "--memory-path", "/workspaces/hackathon_demo/mcp-integration/config/credentials/knowledge_graph_memory.jsonl"],
       "autoapprove": [
         "create_entities",
         "create_relations",
@@ -31,7 +31,7 @@
       "command": "npx", 
       "args": ["@movibe/memory-bank-mcp"],
       "env": {
-        "MEMORY_BANK_PATH": "/workspaces/hackathon_training/Context-Engineering-Intro/mcp-integration/memory-bank"
+        "MEMORY_BANK_PATH": "/workspaces/hackathon_demo/mcp-integration/config/credentials/memory_bank"
       },
       "autoapprove": [
         "initialize_memory_bank",

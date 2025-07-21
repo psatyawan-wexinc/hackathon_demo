@@ -37,7 +37,7 @@
         "server-perplexity-ask"
       ],
       "env": {
-        "PERPLEXITY_API_KEY": "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"
+        "PERPLEXITY_API_KEY": "<>"
       }
     }
   }

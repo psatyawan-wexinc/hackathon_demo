@@ -1,12 +1,21 @@
 #!/bin/bash
 # Source this file to set MCP environment variables
-# Copy this to set-mcp-env.sh and replace with your actual values
+# Copy this to set-mcp-env.sh and ensure .env file exists with your actual values
 
+# Load environment variables from root .env file
+if [ -f "/workspaces/hackathon_demo/.env" ]; then
+    export $(cat /workspaces/hackathon_demo/.env | grep -v '^#' | grep -v '^$' | xargs)
+    echo "✅ Loaded environment variables from .env file"
+else
+    echo "❌ .env file not found. Please copy .env.example to .env and configure your values."
+    exit 1
+fi
+
+# Set MCP-specific configuration
 export CLAUDE_MCP_CONFIG="/workspaces/hackathon_demo/mcp-integration/.mcp.json"
-export PERPLEXITY_API_KEY="YOUR_PERPLEXITY_API_KEY_HERE"
-export MEMORY_BANK_PATH="/workspaces/hackathon_demo/mcp-integration/config/credentials/memory_bank"
 
 echo "✅ MCP environment variables set"
 echo "CLAUDE_MCP_CONFIG: $CLAUDE_MCP_CONFIG"
 echo "PERPLEXITY_API_KEY: [HIDDEN]"
 echo "MEMORY_BANK_PATH: $MEMORY_BANK_PATH"
+echo "KNOWLEDGE_GRAPH_MEMORY_PATH: $KNOWLEDGE_GRAPH_MEMORY_PATH"

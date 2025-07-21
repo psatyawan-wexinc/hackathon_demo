@@ -3,8 +3,8 @@
 # Script to fix Perplexity MCP configuration issues
 # Forces Claude Code to use only local configuration
 # 
-# COPY THIS FILE to fix-mcp-config.sh and replace YOUR_PERPLEXITY_API_KEY_HERE
-# with your actual Perplexity API key before running
+# COPY THIS FILE to fix-mcp-config.sh and ensure .env file exists with your API keys
+# Run scripts/setup-environment.sh first to create .env from .env.example
 
 set -e
 
@@ -40,15 +40,24 @@ fi
 export CLAUDE_MCP_CONFIG="$(pwd)/.mcp.json"
 print_status "Set CLAUDE_MCP_CONFIG to: $CLAUDE_MCP_CONFIG"
 
-# Create a clean environment script
+# Create a clean environment script that sources from .env
 cat > set-mcp-env.sh << 'EOF'
 #!/bin/bash
 # Source this file to set MCP environment variables
+
+# Load environment variables from root .env file
+if [ -f "/workspaces/hackathon_demo/.env" ]; then
+    export $(cat /workspaces/hackathon_demo/.env | grep -v '^#' | grep -v '^$' | xargs)
+    echo "✅ Loaded environment variables from .env file"
+else
+    echo "❌ .env file not found. Run scripts/setup-environment.sh first."
+    exit 1
+fi
+
 export CLAUDE_MCP_CONFIG="/workspaces/hackathon_demo/mcp-integration/.mcp.json"
-export PERPLEXITY_API_KEY="YOUR_PERPLEXITY_API_KEY_HERE"
-export MEMORY_BANK_PATH="/workspaces/hackathon_demo/mcp-integration/config/credentials/memory_bank"
 echo "✅ MCP environment variables set"
 echo "CLAUDE_MCP_CONFIG: $CLAUDE_MCP_CONFIG"
+echo "PERPLEXITY_API_KEY: [HIDDEN]"
 EOF
 
 chmod +x set-mcp-env.sh
@@ -59,7 +68,7 @@ source set-mcp-env.sh
 
 print_status "✅ Configuration fix complete!"
 print_warning "Next steps:"
-echo "1. Replace YOUR_PERPLEXITY_API_KEY_HERE with your actual API key in set-mcp-env.sh"
+echo "1. Ensure .env file exists with your API keys (run scripts/setup-environment.sh if needed)"
 echo "2. Run: source set-mcp-env.sh (to set environment variables)"
 echo "3. Restart Claude Code completely"
 echo "4. Test with: /mcp list (if available)"

@@ -29,29 +29,68 @@ The `.gitignore` file protects against accidentally committing:
 - **Database configs**: `database.json`, `redis.conf`, etc.
 - **Framework secrets**: Django `local_settings.py`, Flask `instance/config.py`
 
-### **Secure Configuration Workflow**
+### **Centralized Environment Management** 🎯
 
-1. **Use Example Files**: Copy `.example` files and populate with real values
+This project uses a **centralized `.env` file approach** for maximum security and maintainability:
+
+1. **Single Source of Truth**: All environment variables are managed in one `.env` file
    ```bash
-   cp .env.example .env
-   cp config.json.example config.json
-   # Edit files with actual credentials
+   # Quick setup - creates .env from template
+   ./scripts/setup-environment.sh
+   
+   # Edit centralized configuration
+   nano .env
    ```
 
-2. **Environment Variables**: Always use environment variables for secrets
+2. **Automated Setup**: Use provided scripts for consistent configuration
+   ```bash
+   # Setup environment (one-time)
+   ./scripts/setup-environment.sh
+   
+   # Validate configuration
+   ./scripts/validate-environment.sh
+   
+   # Load environment for MCP
+   source mcp-integration/set-mcp-env.sh
+   ```
+
+3. **Environment Variable References**: All configuration files use `${VARIABLE_NAME}` syntax
+   ```json
+   {
+     "env": {
+       "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+     }
+   }
+   ```
+
+### **Secure Configuration Workflow**
+
+1. **Use Environment Variables**: Always load from the central `.env` file
    ```python
    import os
    API_KEY = os.getenv('PERPLEXITY_API_KEY')
    SECRET_KEY = os.getenv('JWT_SECRET_KEY')
    ```
 
-3. **Never Hardcode**: Never put credentials directly in code
+2. **Never Hardcode**: Never put credentials directly in code or config files
    ```python
-   # ❌ BAD
+   # ❌ BAD - Hardcoded secret
    API_KEY = "pplx-abc123..."
    
-   # ✅ GOOD  
+   # ❌ BAD - Placeholder in config file
+   "PERPLEXITY_API_KEY": "YOUR_API_KEY_HERE"
+   
+   # ✅ GOOD - Environment variable reference
    API_KEY = os.getenv('PERPLEXITY_API_KEY')
+   
+   # ✅ GOOD - Variable substitution in config
+   "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+   ```
+
+3. **Validation**: Regularly validate your environment configuration
+   ```bash
+   # Check all environment variables are properly set
+   ./scripts/validate-environment.sh
    ```
 
 ---

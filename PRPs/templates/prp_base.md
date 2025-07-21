@@ -42,6 +42,63 @@ Template optimized for AI agents to implement a production-ready HSA (Health Sav
 3. **Edge Case Collections**: Unusual but valid scenarios for comprehensive testing
 4. **GDPR Compliance**: No real PII in test data, use realistic but fake data
 
+### Claude Code Hooks Integration
+
+**Automated Development Workflow Enhancement**
+
+This PRP implementation benefits from Claude Code Hooks that provide automated development workflow support:
+
+1. **TDD Enforcement** (`ensure_test_file.py`):
+   - Automatically creates test files when implementing agents
+   - Generates HSA-specific test templates for LangGraph agents
+   - Pre-configures Factory Boy integration for test data
+   - Example: Creating `src/agents/user_input_agent.py` automatically generates `tests/test_user_input_agent.py` with HSA conversation flow tests
+
+2. **Database Preparation** (`prepare_test_db.py`):
+   - Automatically clears and seeds test SQLite database before pytest runs
+   - Pre-populates with HSA-specific factory data (user profiles, contribution scenarios)
+   - Ensures consistent test environment for agent interactions
+   - Supports IRS limit test data and edge case scenarios
+
+3. **Factory Generation** (`generate_factory.py`):
+   - Detects HSA model files and generates Factory Boy factories automatically
+   - Creates HSA-specific traits (catch-up eligible, near limits, family coverage)
+   - Includes builder patterns for complex test scenarios
+   - Example: Detects `UserProfile` model and generates `UserProfileFactory` with HSA business logic
+
+4. **Continuous Testing** (`run_tests_and_feedback.py`):
+   - Runs pytest automatically after agent implementation
+   - Provides TDD guidance for Red-Green-Refactor cycles
+   - Focuses on financial calculation accuracy and IRS compliance
+   - Blocks completion if critical HSA calculation tests fail
+
+5. **DRY Analysis** (`check_duplication.py`):
+   - Identifies duplicated IRS calculation logic across agents
+   - Suggests extraction of common HSA utilities
+   - Prevents redundant limit calculation implementations
+   - Promotes shared utilities for financial validations
+
+6. **Code Quality** (`format_and_lint.py`):
+   - Automatically formats agent code with consistent style
+   - Identifies critical issues in financial calculations
+   - Ensures production-ready code quality for HSA compliance
+
+**Hook Integration with PRP Workflow:**
+
+The hooks enhance each PRP implementation task:
+- **Task 2 (Models)**: Auto-generates factories when creating HSA models
+- **Task 3 (Agents)**: Creates comprehensive test suites for each agent
+- **Task 4 (Orchestration)**: Tests LangGraph integration automatically
+- **Task 6 (Testing)**: Maintains test database and provides TDD feedback
+- **Task 7 (Production)**: Ensures code quality and DRY compliance
+
+**HSA-Specific Hook Benefits:**
+- Enforces IRS calculation accuracy through automated testing
+- Maintains consistent test data across agent development
+- Prevents financial logic duplication across agents
+- Ensures comprehensive coverage of HSA edge cases
+- Provides real-time feedback on calculation errors
+
 ---
 
 ## Goal

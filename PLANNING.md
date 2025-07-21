@@ -156,6 +156,163 @@ These examples demonstrate expected agent choreography and UI output for impleme
 * Data factory patterns for test fixture generation
 * Message builder utilities for inter-agent communication
 
+## CLAUDE CODE HOOKS INTEGRATION:
+
+### Automated Development Workflow
+The Claude Code Hooks system provides automated development workflow support for the HSA Contribution Planner implementation:
+
+#### 🧪 TDD Enforcement for Agent Development
+**Automatic Test File Generation** (`ensure_test_file.py`):
+- Creates `tests/test_user_input_agent.py` when implementing `src/agents/user_input_agent.py`
+- Generates comprehensive test templates including:
+  - HSA-specific test scenarios (coverage types, catch-up eligibility)
+  - Agent response validation tests
+  - State management test cases
+  - Error handling for invalid user inputs
+- Pre-configured with Factory Boy integration for test data
+
+**Example Generated Test Structure:**
+```python
+# tests/test_user_input_agent.py (auto-generated)
+class TestUserInputAgent:
+    def test_collect_coverage_type_happy_path(self):
+        # Test family vs self-only coverage collection
+        
+    def test_validate_ytd_contribution_edge_cases(self):
+        # Test negative amounts, over-limit scenarios
+        
+    def test_age_55_plus_validation(self):
+        # Test catch-up eligibility logic
+        
+    def test_pay_periods_validation(self):
+        # Test reasonable bounds (1-53 periods)
+```
+
+#### 🗄️ Database Management for HSA Test Data
+**Automated Test Database Setup** (`prepare_test_db.py`):
+- Clears and recreates `tests/test_data.db` before each pytest run
+- Pre-populates with HSA-specific factory data:
+  - User profiles with various coverage types
+  - Contribution history scenarios
+  - IRS limit test data for 2025
+- Ensures consistent test environment for agent testing
+
+#### 🏭 Factory Generation for HSA Models
+**Automatic Factory Creation** (`generate_factory.py`):
+- Detects HSA model files (`user_profile.py`, `contribution.py`, `calculation.py`)
+- Generates Factory Boy factories with HSA-specific traits:
+
+```python
+# Auto-generated: tests/factories/user_profile_factory.py
+class UserProfileFactory(factory.Factory):
+    coverage_type = factory.Iterator(['self-only', 'family'])
+    ytd_contribution = Faker('pyfloat', positive=True, max_value=8000)
+    is_55_plus = Faker('boolean', chance_of_getting_true=30)
+    remaining_pay_periods = Faker('pyint', min_value=1, max_value=26)
+    
+    class Params:
+        family_coverage = Trait(
+            coverage_type='family',
+            annual_limit=8550.0
+        )
+        catch_up_eligible = Trait(
+            is_55_plus=True,
+            catch_up_limit=1000.0
+        )
+        near_contribution_limit = Trait(
+            ytd_contribution=LazyAttribute(lambda obj: obj.annual_limit - 500.0)
+        )
+```
+
+#### 🔄 Continuous Testing for Agent Development
+**Automated Test Execution** (`run_tests_and_feedback.py`):
+- Runs pytest automatically after implementing agent logic
+- Provides TDD guidance for Red-Green-Refactor cycles
+- Special handling for HSA calculation edge cases
+- Coverage analysis focused on critical business logic
+
+**Example TDD Feedback for HSA Agent:**
+```
+🧪 AUTOMATED TEST RESULTS
+Tests: 12 passed, 3 failed, 15 total
+Coverage: 78% ⚠️
+
+🔴 RED PHASE DETECTED: Tests are failing as expected in TDD
+📝 Next: Implement HSA limit calculation logic
+
+🚨 CRITICAL ISSUES TO ADDRESS:
+  • test_calculate_catch_up_limit - Expected 5300, got 4300
+  • test_proration_mid_year_enrollment - Missing last-month rule logic
+  • test_over_contribution_validation - No warning for limit exceeded
+
+📋 NEXT STEPS:
+  1. Implement catch-up contribution logic in LimitCalcAgent
+  2. Add proration calculation with last-month rule
+  3. Implement over-contribution validation and warnings
+```
+
+#### 🔍 DRY Analysis for HSA Implementation
+**Real-time Duplication Detection** (`check_duplication.py`):
+- Identifies duplicated calculation logic across agents
+- Suggests extraction of common HSA utilities
+- Prevents redundant IRS rule implementations
+
+**Example DRY Feedback:**
+```
+⚠️ DRY COMPLIANCE CHECK: src/agents/limit_calc_agent.py
+DRY Score: 65/100 ⚠️
+
+🚨 HIGH SEVERITY DUPLICATIONS:
+   1. Similarity: 92.3%
+      📁 src/agents/limit_calc_agent.py:45-60 (IRS limit calculation)
+      📁 src/agents/planner_agent.py:78-93 (Same IRS limit logic)
+      💡 Extract to shared utility: src/utils/irs_calculations.py
+
+🔧 REFACTORING RECOMMENDATIONS:
+   1. Create src/utils/hsa_limits.py for centralized IRS logic
+   2. Extract proration calculations to shared module
+   3. Unify catch-up contribution validation
+```
+
+#### 💅 Code Quality for Production HSA Agent
+**Automated Formatting and Linting** (`format_and_lint.py`):
+- Formats agent code with black/ruff standards
+- Identifies critical issues in financial calculations
+- Ensures consistent code style across all agents
+
+### HSA-Specific Hook Configurations
+
+**Agent-Focused Test Templates:**
+The hooks generate HSA-domain-specific tests including:
+- Financial calculation accuracy tests
+- IRS rule compliance validation
+- Agent state transition testing
+- Multi-agent conversation flow tests
+
+**Specialized Factory Patterns:**
+Generated factories include HSA business logic:
+- Age-based catch-up eligibility
+- Coverage type constraints
+- Contribution limit boundaries
+- Pay period validation ranges
+
+**Database Seeding for HSA Scenarios:**
+Test database pre-populates with:
+- Various user demographics (age groups, coverage types)
+- Historical contribution patterns
+- Edge case scenarios (over-contributions, mid-year changes)
+- IRS limit data for testing year transitions
+
+### Integration with Multi-Agent Architecture
+
+The hooks system supports the HSA agent workflow:
+1. **UserInputAgent Development**: Auto-generates conversation flow tests
+2. **LimitCalcAgent Implementation**: Creates calculation accuracy tests
+3. **PlannerAgent Logic**: Generates recommendation validation tests
+4. **Cross-Agent Integration**: Ensures state handoff testing
+
+This automated workflow ensures that the HSA Contribution Planner maintains high quality, comprehensive test coverage, and DRY principles throughout development while enforcing TDD practices for financial calculation accuracy.
+
 ## OTHER CONSIDERATIONS:
 
 ### Business Logic Considerations

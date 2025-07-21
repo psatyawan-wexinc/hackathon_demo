@@ -42,6 +42,63 @@ source venv_linux/bin/activate
 pip list | grep -E "factory-boy|faker|sqlalchemy|pydantic" || pip install factory-boy faker sqlalchemy pydantic
 ```
 
+### 1.2.1 Claude Code Hooks Verification and Integration
+**Automated Development Workflow Verification**:
+
+```bash
+# Verify hooks configuration
+echo "🪝 Verifying Claude Code Hooks system..."
+cat /workspaces/hackathon_demo/.claude/settings.local.json | grep -A 10 "hooks" && echo "✓ Hooks configured"
+
+# Validate hook files exist
+for hook in ensure_test_file prepare_test_db run_tests_and_feedback generate_factory check_duplication format_and_lint; do
+    if [ -f "/workspaces/hackathon_demo/.claude/hooks/${hook}.py" ]; then
+        echo "✓ Hook: ${hook}.py"
+    else
+        echo "❌ Missing hook: ${hook}.py"
+    fi
+done
+
+# Test hook utilities
+python -c "
+import sys
+sys.path.append('/workspaces/hackathon_demo/.claude/hooks')
+from utils import file_utils, test_utils, factory_generator, duplication_detector
+print('✓ Hook utilities accessible')
+"
+```
+
+**Hook Integration Planning**:
+- **TDD Enforcement**: `ensure_test_file.py` will create test files automatically during implementation
+- **Database Management**: `prepare_test_db.py` will manage test database before pytest execution
+- **Factory Generation**: `generate_factory.py` will create Factory Boy factories for models
+- **Continuous Testing**: `run_tests_and_feedback.py` will provide TDD feedback after development tasks
+- **DRY Analysis**: `check_duplication.py` will monitor code quality in real-time
+- **Code Quality**: `format_and_lint.py` will maintain consistent code standards
+
+**Expected Hook Workflow During Execution**:
+1. **File Creation**: When creating Python files → hooks generate tests and factories
+2. **Test Execution**: When running pytest → hooks prepare database automatically
+3. **Development Tasks**: After implementation → hooks run tests and provide feedback
+4. **Code Quality**: After writing code → hooks analyze DRY compliance and format code
+
+**Hook-Enhanced Development Cycle**:
+```mermaid
+graph TD
+    A[Write Python File] --> B[ensure_test_file.py creates test]
+    B --> C[generate_factory.py creates factories] 
+    C --> D[format_and_lint.py formats code]
+    D --> E[check_duplication.py analyzes DRY]
+    E --> F[Development Task Complete]
+    F --> G[run_tests_and_feedback.py executes]
+    G --> H{Tests Pass?}
+    H -->|No| I[TDD Red Phase - Fix Tests]
+    H -->|Yes| J[TDD Green Phase - Continue]
+    I --> K[Run pytest]
+    K --> L[prepare_test_db.py seeds database]
+    L --> G
+```
+
 ### 1.3 Comprehensive MCP Context Loading
 **Load ALL context files and document findings:**
 
@@ -111,6 +168,11 @@ find /workspaces/hackathon_demo/use-case -type d -name "*" -exec touch {}/__init
      - Apply DRY principles and design patterns
      - Create utility functions and shared components
      - Follow CLAUDE.md coding standards strictly
+   - **Hook Integration**: 
+     - Leverages `ensure_test_file.py` for automatic test file creation
+     - Benefits from `generate_factory.py` for model-based Factory Boy generation
+     - Uses `format_and_lint.py` for consistent code quality
+     - Receives `check_duplication.py` feedback for DRY compliance
    - **Output**: Implementation files in `/workspaces/hackathon_demo/use-case/src/`
 
 2. **🧪 TESTING AGENT (Agent-Test)**
@@ -121,6 +183,12 @@ find /workspaces/hackathon_demo/use-case -type d -name "*" -exec touch {}/__init
      - Ensure minimum 80% code coverage
      - Write property-based and performance tests
      - Validate all edge cases and error scenarios
+   - **Hook Integration**:
+     - Works with `ensure_test_file.py` generated test templates
+     - Benefits from `prepare_test_db.py` for automated database management
+     - Leverages `generate_factory.py` created factories for test data
+     - Receives continuous feedback from `run_tests_and_feedback.py`
+     - Uses hooks-generated test file structure and fixtures
    - **Output**: Test files in `/workspaces/hackathon_demo/use-case/tests/`
 
 3. **🔍 CODE REVIEW AGENT (Agent-Review)**

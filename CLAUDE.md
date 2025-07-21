@@ -38,6 +38,202 @@
   - Validate architecture approaches against real-world implementations
   - Essential for Pattern Recognition Phase and Three-Pass Discovery approach
 
+### 🪝 Claude Code Hooks System - AUTOMATED DEVELOPMENT WORKFLOW
+- **Intelligent Automation**: Claude Code Hooks provide automated development workflow enforcement
+  - **TDD Enforcement**: Automatically create test files when writing new code
+  - **Database Management**: Clean and seed test databases before each test run
+  - **Code Quality**: Real-time formatting, linting, and duplication detection
+  - **Factory Generation**: Automatic Factory Boy factory creation for models
+  - **Continuous Testing**: Automated test execution with TDD guidance
+
+#### 🔧 Implemented Hooks Configuration
+The following hooks are configured in `.claude/settings.local.json`:
+
+**1. Test File Enforcement Hook** (`ensure_test_file.py`)
+- **Type**: PreToolUse (Write/Edit on *.py files)
+- **Purpose**: Enforces TDD by automatically creating test files when writing new Python modules
+- **Features**:
+  - Generates comprehensive test templates with TDD phases marked
+  - Includes unit, integration, and property-based test structures
+  - Supports HSA-specific test scenarios and factory patterns
+  - Provides clear Red-Green-Refactor guidance
+
+**2. Database Preparation Hook** (`prepare_test_db.py`)
+- **Type**: PreToolUse (Bash commands containing "pytest")
+- **Purpose**: Ensures clean test database state before running tests
+- **Features**:
+  - Clears existing test SQLite database
+  - Recreates schema from models or SQL files
+  - Pre-populates with Factory Boy test data
+  - Supports multiple factory loading strategies
+
+**3. Continuous Testing Hook** (`run_tests_and_feedback.py`)
+- **Type**: Stop (after development tasks)
+- **Purpose**: Automatically runs tests and provides TDD feedback
+- **Features**:
+  - Executes pytest with coverage analysis
+  - Provides detailed test failure analysis
+  - Blocks completion on test failures (Red phase)
+  - Guides through Red-Green-Refactor cycle
+  - Shows coverage gaps and improvement suggestions
+
+**4. Factory Generation Hook** (`generate_factory.py`)
+- **Type**: PostToolUse (Write/Edit on *.py files with models)
+- **Purpose**: Automatically generates Factory Boy factories for SQLAlchemy/Pydantic models
+- **Features**:
+  - Detects model files using AST parsing
+  - Generates comprehensive factory definitions
+  - Includes HSA-specific traits and scenarios
+  - Creates builder patterns for complex test data
+  - Updates conftest.py with new factories
+
+**5. Duplication Detection Hook** (`check_duplication.py`)
+- **Type**: PostToolUse (Write/Edit on *.py files)
+- **Purpose**: Real-time code duplication analysis for DRY compliance
+- **Features**:
+  - Analyzes code blocks for similarity patterns
+  - Calculates DRY score (0-100) with severity levels
+  - Provides refactoring suggestions
+  - Identifies cross-file and same-file duplications
+  - Blocks critical violations while allowing minor issues
+
+**6. Format and Lint Hook** (`format_and_lint.py`)
+- **Type**: PostToolUse (Write/Edit on *.py files)
+- **Purpose**: Automated code formatting and intelligent linting
+- **Features**:
+  - Supports ruff, black, autopep8 for formatting
+  - Uses ruff, flake8, pycodestyle for linting
+  - Categorizes issues by severity (critical/warning/style)
+  - Focuses on actionable feedback
+  - Automatically applies formatting changes
+
+#### 🔄 Hook Workflow Integration
+The hooks work together to create an automated TDD and quality workflow:
+
+```mermaid
+graph TD
+    A[Write/Edit Python File] --> B[ensure_test_file.py]
+    B --> C{Test File Exists?}
+    C -->|No| D[Create Test Template]
+    C -->|Yes| E[Continue]
+    D --> E
+    E --> F[File Written]
+    F --> G[generate_factory.py]
+    G --> H{Model File?}
+    H -->|Yes| I[Generate Factory]
+    H -->|No| J[Skip Factory]
+    I --> J
+    J --> K[check_duplication.py]
+    K --> L[Analyze DRY Compliance]
+    L --> M[format_and_lint.py]
+    M --> N[Format & Lint Code]
+    N --> O[Development Task Complete]
+    O --> P[run_tests_and_feedback.py]
+    P --> Q{Tests Pass?}
+    Q -->|No| R[Block & Provide TDD Guidance]
+    Q -->|Yes| S[Success - Continue]
+    R --> T[Fix Tests Following TDD]
+    T --> U[Run pytest]
+    U --> V[prepare_test_db.py]
+    V --> W[Clean & Seed Database]
+    W --> P
+```
+
+#### 🎯 Hook Usage Examples
+
+**Automatic Test File Creation:**
+```python
+# When creating src/user_repository.py
+# → Hook automatically creates tests/test_user_repository.py with:
+#   - TDD-marked test methods (@pytest.mark.skip)
+#   - Factory Boy integration
+#   - Setup/teardown methods
+#   - Comprehensive test structure
+```
+
+**Database Preparation:**
+```bash
+# Running: pytest tests/test_user_repository.py
+# → Hook automatically:
+#   1. Clears tests/test_data.db
+#   2. Recreates schema from models
+#   3. Populates with UserFactory test data
+#   4. Ensures clean test environment
+```
+
+**Continuous Testing Feedback:**
+```python
+# After implementing a feature
+# → Hook runs pytest and provides:
+"""
+🧪 AUTOMATED TEST RESULTS
+=====================================
+Tests: 5 passed, 2 failed, 7 total
+Coverage: 85% ✅
+
+🔴 RED PHASE DETECTED: Tests are failing as expected in TDD
+📝 Next: Implement minimal code to make these tests pass
+✅ Goal: Move to GREEN phase where all tests pass
+
+🚨 CRITICAL ISSUES TO ADDRESS:
+  • 2 test(s) are failing
+  • Failed test: test_calculate_hsa_limit
+  • Error: AssertionError: Expected 4300.0, got None
+
+📋 NEXT STEPS:
+  1. Review the failing test assertions
+  2. Implement the minimum code needed to pass tests
+  3. Run tests again to verify fixes
+"""
+```
+
+**Real-time DRY Analysis:**
+```python
+# After editing code with duplications
+# → Hook provides:
+"""
+⚠️ DRY COMPLIANCE CHECK: src/hsa_calculator.py
+=============================================
+DRY Score: 72/100 ⚠️
+
+📊 Duplications found: 3 total
+   🚨 High severity: 1
+   ⚠️ Medium severity: 2
+
+🚨 HIGH SEVERITY DUPLICATIONS:
+   1. Similarity: 89.2%
+      📁 src/hsa_calculator.py:45-52 (8 lines)
+      📁 src/contribution_validator.py:23-30 (8 lines)
+      💡 Extract common logic into a shared utility function
+
+🔧 REFACTORING RECOMMENDATIONS:
+   1. Address 1 high-severity duplications immediately
+   2. Extract common functions and classes to shared utilities
+   3. Consider creating base classes or mixins for shared behavior
+"""
+```
+
+#### 🛠️ Hook Utilities and Templates
+The hooks leverage shared utilities in `.claude/hooks/utils/`:
+
+- **file_utils.py**: Path manipulation, Python file detection, use-case directory management
+- **test_utils.py**: Pytest execution, result parsing, coverage analysis, database management
+- **factory_generator.py**: AST-based model parsing, Factory Boy factory generation
+- **duplication_detector.py**: Code similarity analysis, DRY scoring, refactoring suggestions
+
+Template files in `.claude/hooks/templates/`:
+- **test_template.py**: Comprehensive TDD test template with phases, fixtures, and HSA scenarios
+- **factory_template.py**: Factory Boy template with traits, builders, and usage examples
+
+#### 🎛️ Hook Configuration Management
+Hooks are configured in `.claude/settings.local.json` with:
+- **Event Matchers**: PreToolUse, PostToolUse, Stop events
+- **File Filters**: Python file patterns, directory restrictions
+- **Tool Filters**: Write, Edit, Bash command patterns
+- **Graceful Error Handling**: Never block operations on hook failures
+
+The hooks system integrates seamlessly with the existing MCP workflow and multi-agent development to provide a comprehensive automated development experience.
+
 ### 🤖 Multi-Agent Batchtool Development - ENHANCED WORKFLOW
 - **Five-Agent Architecture**: Leverage Claude Code's batchtool mode for parallel development with specialized agents
   - **🔨 Coding Agent**: Senior engineer focused on TDD implementation and DRY principles

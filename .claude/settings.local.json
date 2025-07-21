@@ -28,5 +28,57 @@
     "knowledge-graph",
     "memory-bank",
     "perplexity-ask"
-  ]
+  ],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python /workspaces/hackathon_demo/.claude/hooks/ensure_test_file.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python /workspaces/hackathon_demo/.claude/hooks/prepare_test_db.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python /workspaces/hackathon_demo/.claude/hooks/generate_factory.py"
+          },
+          {
+            "type": "command",
+            "command": "python /workspaces/hackathon_demo/.claude/hooks/check_duplication.py"
+          },
+          {
+            "type": "command",
+            "command": "python /workspaces/hackathon_demo/.claude/hooks/format_and_lint.py"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python /workspaces/hackathon_demo/.claude/hooks/run_tests_and_feedback.py"
+          }
+        ]
+      }
+    ]
+  }
 }

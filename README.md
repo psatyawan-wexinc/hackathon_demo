@@ -1,8 +1,8 @@
 # HSA Contribution Planner - Context Engineering Demo
 
-A comprehensive demonstration of Context Engineering principles applied to building an HSA (Health Savings Account) Contribution Planner using LangGraph multi-agent orchestration, Test-Driven Development, DRY (Don't Repeat Yourself) methodology, and MCP (Model Context Protocol) integration.
+A comprehensive demonstration of Context Engineering principles applied to building an HSA (Health Savings Account) Contribution Planner using LangGraph multi-agent orchestration, Test-Driven Development, DRY (Don't Repeat Yourself) methodology, MCP (Model Context Protocol) integration, and **Claude Code Hooks** for automated development workflow.
 
-> **This project showcases how Context Engineering with DRY principles and proper tooling enables AI assistants to build complex, production-ready applications in a single pass.**
+> **This project showcases how Context Engineering with DRY principles, automated hooks, and proper tooling enables AI assistants to build complex, production-ready applications in a single pass.**
 
 ## 🎯 Project Overview
 
@@ -56,8 +56,17 @@ hackathon_demo/
 │   ├── commands/
 │   │   ├── generate-prp.md      # Enhanced PRP generation with MCP
 │   │   └── execute-prp.md       # TDD execution with validation
+│   ├── hooks/                   # Automated development workflow
+│   │   ├── ensure_test_file.py  # Auto-generate test files (TDD)
+│   │   ├── prepare_test_db.py   # Database seeding automation
+│   │   ├── generate_factory.py  # Factory Boy generation
+│   │   ├── run_tests_and_feedback.py # Continuous testing
+│   │   ├── check_duplication.py # DRY compliance monitoring
+│   │   ├── format_and_lint.py   # Code quality enforcement
+│   │   ├── utils/               # Shared hook utilities
+│   │   └── templates/           # Test and factory templates
 │   ├── config.json              # MCP server configurations
-│   └── settings.local.json      # Claude Code permissions
+│   └── settings.local.json      # Claude Code permissions & hooks
 ├── .mcp.json                    # MCP server definitions
 ├── CLAUDE.md                    # Global rules (TDD, MCP, structure)
 ├── PLANNING.md                  # HSA planner specifications
@@ -90,14 +99,15 @@ This includes:
 
 ### 1. Understand the Rules (CLAUDE.md)
 
-The project enforces strict guidelines:
+The project enforces strict guidelines with **automated enforcement** via Claude Code Hooks:
 
-- **Test-Driven Development**: Write tests first, always
-- **DRY Principles**: Don't Repeat Yourself - comprehensive code reuse strategy
+- **Test-Driven Development**: Write tests first, always (auto-enforced)
+- **DRY Principles**: Don't Repeat Yourself - comprehensive code reuse strategy (monitored)
 - **MCP Integration**: Use Memory Bank and Knowledge Graph throughout
 - **Directory Structure**: All code in `/use-case` folder
-- **Coverage Requirements**: Minimum 80%, target 95%
+- **Coverage Requirements**: Minimum 80%, target 95% (auto-validated)
 - **Python Environment**: Use `venv_linux` for all commands
+- **Automated Quality**: Hooks handle formatting, linting, and TDD enforcement
 
 ### 2. Create Feature Specification (PLANNING.md)
 
@@ -130,21 +140,24 @@ The `/generate-prp` command:
 5. Validates against all project rules
 6. Scores confidence (1-10) for one-pass success
 
-### 4. Execute with TDD Cycle
+### 4. Execute with TDD Cycle + Automated Hooks
 
-The `/execute-prp` command follows strict TDD:
+The `/execute-prp` command follows strict TDD with **automated workflow support**:
 
 ```
-For each component:
-1. Write failing tests → 2. Run tests (RED) → 3. Implement code → 
-4. Run tests (GREEN) → 5. Refactor → 6. Validate coverage
+For each component (with hooks automation):
+1. Write/Edit File → Hook auto-creates test file → 2. Run pytest → Hook cleans database
+3. Implement code → Hook formats/lints → 4. Run tests (GREEN) → Hook validates DRY
+5. Refactor → Hook provides feedback → 6. Final validation
 ```
 
-Validation includes:
-- Syntax checking (ruff, mypy)
-- Unit tests with coverage
-- Integration tests
-- Performance validation
+**Automated Validation** includes:
+- **Pre-Write**: Test file generation (ensure_test_file.py)
+- **Pre-Test**: Database seeding (prepare_test_db.py)
+- **Post-Write**: Factory generation (generate_factory.py)
+- **Post-Write**: DRY analysis (check_duplication.py)
+- **Post-Write**: Formatting/linting (format_and_lint.py)
+- **Stop**: TDD feedback loop (run_tests_and_feedback.py)
 
 ## 🔌 MCP Integration
 
@@ -275,9 +288,11 @@ Form.Field = ({ label, error, children }) => (
 </Form>
 ```
 
-## 🧪 Test-Driven Development
+## 🧪 Test-Driven Development + Claude Code Hooks
 
-### The TDD Cycle (Mandatory)
+### The TDD Cycle (Automated)
+
+**Hooks automate the TDD workflow** while maintaining strict Red-Green-Refactor discipline:
 
 1. **Red Phase**: Write failing tests first
    ```python
@@ -286,6 +301,8 @@ Form.Field = ({ label, error, children }) => (
        with pytest.raises(ValidationError):
            agent.validate_coverage("invalid")
    ```
+   
+   🪝 **Hook Integration**: `ensure_test_file.py` auto-generates comprehensive test templates
 
 2. **Green Phase**: Minimal code to pass
    ```python
@@ -293,23 +310,168 @@ Form.Field = ({ label, error, children }) => (
        if coverage_type not in ["self-only", "family"]:
            raise ValidationError("Invalid coverage type")
    ```
+   
+   🪝 **Hook Integration**: `format_and_lint.py` formats code, `run_tests_and_feedback.py` provides TDD guidance
 
 3. **Refactor Phase**: Improve while keeping tests green
 
-### Coverage Requirements
-- Minimum: 80% (enforced)
+   🪝 **Hook Integration**: `check_duplication.py` monitors DRY compliance and suggests refactoring
+
+### Automated Hook Workflow
+
+```mermaid
+graph TD
+    A[Write/Edit Python File] --> B[ensure_test_file.py]
+    B --> C{Test File Exists?}
+    C -->|No| D[Create Test Template]
+    C -->|Yes| E[Continue]
+    D --> E
+    E --> F[File Written]
+    F --> G[generate_factory.py + check_duplication.py + format_and_lint.py]
+    G --> H[Development Task Complete]
+    H --> I[run_tests_and_feedback.py]
+    I --> J{Tests Pass?}
+    J -->|No| K[Block & Provide TDD Guidance]
+    J -->|Yes| L[Success]
+    K --> M[Fix Following TDD Cycle]
+    M --> N[Run pytest with prepare_test_db.py]
+    N --> I
+```
+
+### Coverage Requirements (Auto-Enforced)
+- Minimum: 80% (enforced by hooks)
 - Target: 95% (recommended)
 - Focus on: Happy paths, edge cases, error handling
+- **Automated feedback**: `run_tests_and_feedback.py` provides detailed coverage analysis
+
+## 🪝 Claude Code Hooks - Automated Development Workflow
+
+### Complete Hook System Overview
+
+The project implements a comprehensive **Claude Code Hooks** system that provides automated development workflow enforcement, ensuring TDD compliance, DRY principles, and code quality without manual intervention.
+
+#### 🔧 Implemented Hooks
+
+**1. Test File Enforcement** (`ensure_test_file.py`)
+- **Trigger**: PreToolUse (Write/Edit on *.py files)
+- **Purpose**: Enforces TDD by automatically creating test files
+- **Features**:
+  - Generates comprehensive test templates with TDD phases
+  - Includes HSA-specific test scenarios and factory patterns
+  - Provides clear Red-Green-Refactor guidance
+
+**2. Database Preparation** (`prepare_test_db.py`)
+- **Trigger**: PreToolUse (Bash commands containing "pytest")
+- **Purpose**: Ensures clean test database state
+- **Features**:
+  - Clears existing test SQLite database
+  - Recreates schema from models
+  - Pre-populates with Factory Boy test data
+
+**3. Continuous Testing** (`run_tests_and_feedback.py`)
+- **Trigger**: Stop (after development tasks)
+- **Purpose**: Automatically runs tests and provides TDD feedback
+- **Features**:
+  - Executes pytest with coverage analysis
+  - Provides detailed test failure analysis
+  - Blocks completion on test failures (Red phase)
+  - Guides through Red-Green-Refactor cycle
+
+**4. Factory Generation** (`generate_factory.py`)
+- **Trigger**: PostToolUse (Write/Edit on *.py files with models)
+- **Purpose**: Automatically generates Factory Boy factories
+- **Features**:
+  - Detects model files using AST parsing
+  - Generates comprehensive factory definitions
+  - Includes HSA-specific traits and scenarios
+
+**5. DRY Compliance Monitoring** (`check_duplication.py`)
+- **Trigger**: PostToolUse (Write/Edit on *.py files)
+- **Purpose**: Real-time code duplication analysis
+- **Features**:
+  - Analyzes code blocks for similarity patterns
+  - Calculates DRY score (0-100) with severity levels
+  - Provides refactoring suggestions
+
+**6. Code Quality Enforcement** (`format_and_lint.py`)
+- **Trigger**: PostToolUse (Write/Edit on *.py files)
+- **Purpose**: Automated code formatting and intelligent linting
+- **Features**:
+  - Supports ruff, black, autopep8 for formatting
+  - Uses ruff, flake8, pycodestyle for linting
+  - Categorizes issues by severity
+
+### Hook Configuration
+
+The hooks are configured in `.claude/settings.local.json`:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python /workspaces/hackathon_demo/.claude/hooks/ensure_test_file.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command", 
+            "command": "python /workspaces/hackathon_demo/.claude/hooks/prepare_test_db.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python /workspaces/hackathon_demo/.claude/hooks/generate_factory.py"
+          },
+          {
+            "type": "command",
+            "command": "python /workspaces/hackathon_demo/.claude/hooks/check_duplication.py"
+          },
+          {
+            "type": "command",
+            "command": "python /workspaces/hackathon_demo/.claude/hooks/format_and_lint.py"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python /workspaces/hackathon_demo/.claude/hooks/run_tests_and_feedback.py"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
 ## 📋 Best Practices
 
 ### Context Engineering Principles
 
 1. **Comprehensive Context**: Include all documentation, examples, and patterns
-2. **DRY-First Development**: Search and reuse before creating new code
+2. **DRY-First Development**: Search and reuse before creating new code (automated monitoring)
 3. **Validation Gates**: Automated checks at each step including DRY compliance
 4. **Self-Correcting**: Error patterns guide fixes and refactoring opportunities
 5. **One-Pass Success**: Complete context enables single-pass implementation
+6. **Hook-Enhanced Workflow**: Automated TDD enforcement and quality assurance
 
 ### PRP Quality Metrics
 
@@ -435,4 +597,26 @@ claude code batchtool --emergency-security \
 
 ---
 
-*This project demonstrates the power of Context Engineering with Multi-Agent Batchtool: providing AI assistants with comprehensive context, parallel specialized agents, real-time threat intelligence, and validation gates to build production-ready applications at unprecedented speed and security.*
+## 🎉 Benefits of This Implementation
+
+### Automated Development Workflow
+- **Zero Manual Setup**: Hooks automatically create test files, factories, and database setup
+- **Real-Time Quality**: Continuous monitoring of DRY compliance and code quality
+- **TDD Enforcement**: Impossible to skip tests - workflow blocks until tests pass
+- **Intelligent Feedback**: Specific guidance for Red-Green-Refactor cycles
+
+### Production-Ready Standards
+- **Complete Test Coverage**: Automated generation ensures comprehensive test suites
+- **DRY Compliance**: Real-time duplication detection prevents code bloat
+- **Security Integration**: Multi-agent system includes proactive threat intelligence
+- **Performance Monitoring**: Built-in optimization and profiling hooks
+
+### Developer Experience
+- **Effortless Quality**: All quality checks happen automatically in the background
+- **Clear Guidance**: Hooks provide specific, actionable feedback at each step
+- **Rapid Iteration**: Automated database seeding and test generation speed up development
+- **Learning System**: Hooks learn from patterns and provide increasingly better suggestions
+
+---
+
+*This project demonstrates the power of Context Engineering with Claude Code Hooks and Multi-Agent Batchtool: providing AI assistants with comprehensive context, automated development workflow, parallel specialized agents, real-time threat intelligence, and validation gates to build production-ready applications at unprecedented speed, quality, and security.*
